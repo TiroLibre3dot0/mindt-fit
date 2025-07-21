@@ -1,4 +1,3 @@
-// src/components/Mindt/IntroText.jsx
 import React from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import StartButton from "./StartButton";
@@ -11,7 +10,7 @@ const Keyword = ({ children, tone }) => {
 
   return (
     <span
-      className={`inline-block rounded-md px-2 py-0.5 text-sm font-semibold ${styles[tone]} mx-0.5`}
+      className={`inline-block rounded-md px-2 py-0.5 text-xs sm:text-sm font-semibold ${styles[tone]} mx-0.5`}
     >
       {children}
     </span>
@@ -69,23 +68,26 @@ const IntroText = ({ onStart }) => {
   const t = content[language];
 
   return (
-    <div className="text-center max-w-2xl mx-auto">
-      {/* Frase introduttiva */}
-      <div className="text-xl md:text-2xl mb-6 leading-relaxed font-medium text-zinc-100">
-        {t.intro}
+    <div className="w-full max-w-2xl px-4 sm:px-6 mx-auto">
+      <div className="text-center">
+        <div className="text-lg sm:text-xl md:text-2xl mb-4 sm:mb-6 leading-relaxed font-medium text-zinc-100">
+          {t.intro}
+        </div>
+
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-2">
+          {t.title}
+        </h1>
+
+        <p className="text-sm sm:text-base md:text-lg text-zinc-300 mb-6">
+          {t.description}
+        </p>
+
+        <StartButton onStart={onStart} />
+
+        <p className="mt-6 text-xs sm:text-sm text-zinc-400 italic">
+          {t.disclaimer}
+        </p>
       </div>
-
-      {/* Titolo */}
-      <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-2">{t.title}</h1>
-
-      {/* Descrizione */}
-      <p className="text-base md:text-lg text-zinc-300 mb-6">{t.description}</p>
-
-      {/* Pulsante */}
-      <StartButton onStart={onStart} />
-
-      {/* Disclaimer */}
-      <p className="mt-6 text-sm text-zinc-400 italic">{t.disclaimer}</p>
     </div>
   );
 };

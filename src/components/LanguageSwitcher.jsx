@@ -1,12 +1,12 @@
 // src/components/LanguageSwitcher.jsx
 import { useLanguage } from "../context/LanguageContext";
 
-const LanguageSwitcher = () => {
+const LanguageSwitcher = ({ showLabel = true }) => {
   const { language, setLanguage } = useLanguage();
 
   return (
     <div className="flex gap-2 items-center">
-      <label className="text-sm text-gray-300">🌍 Language:</label>
+      {showLabel && <label className="text-sm text-gray-300">🌍</label>}
       <select
         value={language}
         onChange={(e) => setLanguage(e.target.value)}
