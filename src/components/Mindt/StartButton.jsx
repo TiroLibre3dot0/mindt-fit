@@ -1,7 +1,6 @@
-// src/components/Mindt/StartButton.jsx
 import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
-import { logCTAInteraction } from "../../utils/logCtaInteraction"; // <-- importante
+import { logCTAInteraction } from "../../utils/logCtaInteraction"; // <-- aggiornato
 
 // Colori + testi dinamici
 const CTA_COLORS = [
@@ -51,22 +50,25 @@ const StartButton = ({ onStart }) => {
   const { language } = useLanguage();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // Seleziona colore e logga visualizzazione su Firestore
   useEffect(() => {
-  const randomIndex = Math.floor(Math.random() * CTA_COLORS.length);
-  setSelectedIndex(randomIndex);
+    const randomIndex = Math.floor(Math.random() * CTA_COLORS.length);
+    setSelectedIndex(randomIndex);
 
-  const colorName = CTA_COLORS[randomIndex].name;
-  logCTAInteraction(colorName, "views");
-}, []);
+    const colorName = CTA_COLORS[randomIndex].name;
+    const text = CTA_COLORS[randomIndex].label[language] || CTA_COLORS[randomIndex].label.en;
 
-  // Al click: logga e attiva funzione
+    // 👁️ Tracciamento visualizzazione con testo
+    logCTAInteraction(colorName, "views", text);
+  }, [language]);
+
   const handleClick = () => {
-  const colorName = CTA_COLORS[selectedIndex].name;
-  logCTAInteraction(colorName, "clicks");
-  onStart();
-};
+    const colorName = CTA_COLORS[selectedIndex].name;
+    const text = CTA_COLORS[selectedIndex].label[language] || CTA_COLORS[selectedIndex].label.en;
 
+    // 🖱️ Tracciamento click con testo
+    logCTAInteraction(colorName, "clicks", text);
+    onStart();
+  };
 
   const { color, hover, label } = CTA_COLORS[selectedIndex];
   const text = label[language] || label.en;
