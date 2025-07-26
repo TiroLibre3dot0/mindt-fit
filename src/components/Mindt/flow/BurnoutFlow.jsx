@@ -1,16 +1,15 @@
 // src/components/Mindt/flow/BurnoutFlow.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StepNavigation from './StepNavigation';
 import InsightBox from './InsightBox';
 import getRealtimeInsight from './getRealtimeInsight';
 import { useLanguage } from '../../../context/LanguageContext';
-
 import { burnoutQuestionsShort } from './burnoutQuestionsShort';
-
 import EmotionalExhaustionQuestions from './EmotionalExhaustionQuestions';
 import DepersonalizationQuestions from './DepersonalizationQuestions';
 import PersonalAchievementQuestions from './PersonalAchievementQuestions';
+import { logFlow } from '../../../utils/logFlow';
 
 const BurnoutFlow = ({ mode = 'short' }) => {
   const { language } = useLanguage();
@@ -20,43 +19,69 @@ const BurnoutFlow = ({ mode = 'short' }) => {
   const [loadingInsight, setLoadingInsight] = useState(false);
 
   const navigate = useNavigate();
+  const totalSteps = mode === 'short' ? 6 : 3;
+
+  useEffect(() => {
+    logFlow("BurnoutFlow", "Inizio flusso", { mode, language, step: currentStep });
+  }, []);
 
   const handleAnswer = async (key, value, label) => {
-    const updatedAnswers = { ...answers, [key]: value };
-    setAnswers(updatedAnswers);
+  const updatedAnswers = { ...answers, [key]: value };
+  setAnswers(updatedAnswers);
 
-    if (mode === 'short') {
-      setLoadingInsight(true);
-      try {
-        const insight = await getRealtimeInsight(label, language, value);
-        const updatedInsights = [...insights];
-        updatedInsights[currentStep] = insight;
-        setInsights(updatedInsights);
-      } catch (error) {
-        console.error("Errore generazione insight:", error);
-      } finally {
-        setLoadingInsight(false);
-      }
+  // ✅ AGGIUNTA LOG
+  logFlow({
+  component: "BurnoutFlow",
+  action: `Answered ${label}`,
+  data: {
+    questionKey: key,
+    answerValue: value
+  }
+});
+
+  if (mode === 'short') {
+    setLoadingInsight(true);
+    try {
+      const insight = await getRealtimeInsight(label, language, value);
+      const updatedInsights = [...insights];
+      updatedInsights[currentStep] = insight;
+      setInsights(updatedInsights);
+    } catch (error) {
+      console.error("Errore generazione insight:", error);
+    } finally {
+      setLoadingInsight(false);
     }
-  };
+  }
+};
+
 
   const handleNext = () => {
-    if (currentStep + 1 < totalSteps) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      navigate("/mindt-finale", {
-        state: { answers, insights, language }
-      });
-    }
-  };
+  logFlow({
+    component: "BurnoutFlow",
+    action: "Clicked → Avanti",
+    data: { currentStep }
+  });
+
+  if (currentStep + 1 < totalSteps) {
+    setCurrentStep(currentStep + 1);
+  } else {
+    navigate("/mindt-finale", {
+      state: { answers, insights, language }
+    });
+  }
+};
 
   const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
+  logFlow({
+    component: "BurnoutFlow",
+    action: "Clicked ← Indietro",
+    data: { currentStep }
+  });
 
-  const totalSteps = mode === 'short' ? 6 : 3;
+  if (currentStep > 0) {
+    setCurrentStep(currentStep - 1);
+  }
+};
 
   return (
     <div className="max-w-4xl mx-auto mt-10 px-6 text-white">

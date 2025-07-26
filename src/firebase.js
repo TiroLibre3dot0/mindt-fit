@@ -4,16 +4,17 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCwAGkd5qIEtVReCSL7s7yJOo0jjr3tZMo",
-  authDomain: "visionaryos-589cf.firebaseapp.com",
-  projectId: "visionaryos-589cf",
-  storageBucket: "visionaryos-589cf.firebasestorage.app",
-  messagingSenderId: "753579553280",
-  appId: "1:753579553280:web:47a2a949a473bcf23a5ee5"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Inizializzazione Firebase
 const app = initializeApp(firebaseConfig);
+
 
 // Export Auth e Firestore
 export const auth = getAuth(app);

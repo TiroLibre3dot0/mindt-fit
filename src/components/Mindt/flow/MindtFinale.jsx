@@ -7,6 +7,7 @@ import { useLanguage } from "../../../context/LanguageContext";
 import SnackModal from "./SnackModal";
 import SnackInfoBox from "./SnackInfoBox";
 
+
 const MindtFinale = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -127,7 +128,7 @@ const MindtFinale = () => {
 
         <div className="w-full lg:w-1/2 flex flex-col items-center gap-6">
           <button
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/mindt-register")}
             className="w-full max-w-sm bg-[#f17b4e] hover:bg-[#e56733] text-white text-lg font-semibold py-4 px-6 rounded-2xl shadow-lg transition"
           >
             {t.create}

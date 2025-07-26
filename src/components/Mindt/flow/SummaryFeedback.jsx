@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useLanguage } from "../../../context/LanguageContext";
 import { getFinalSummary } from "./apiClient";
 import BurnoutAnalyzer from "./BurnoutAnalyzer";
+import { logFlow } from "../../../utils/logFlow"; // ✅ IMPORT AGGIUNTO
 
 const SummaryFeedback = ({ answers, insights }) => {
   const { language } = useLanguage();
@@ -18,10 +19,24 @@ const SummaryFeedback = ({ answers, insights }) => {
       try {
         const result = await getFinalSummary({ answers, insights, language });
         setSummary(result);
-        localStorage.setItem(localKey, result); // Salvataggio in localStorage
+        localStorage.setItem(localKey, result);
+
+        logFlow({
+          component: "SummaryFeedback",
+          action: "✅ Final summary ricevuto da API",
+          data: result,
+          level: "info",
+        });
       } catch (error) {
         console.error("❌ Errore nella chiamata getFinalSummary:", error);
         setSummary("Errore nel caricamento del feedback.");
+
+        logFlow({
+          component: "SummaryFeedback",
+          action: "❌ Errore fetch final summary",
+          data: error,
+          level: "error",
+        });
       } finally {
         setLoading(false);
       }
@@ -32,6 +47,13 @@ const SummaryFeedback = ({ answers, insights }) => {
     if (savedSummary) {
       setSummary(savedSummary);
       setLoading(false);
+
+      logFlow({
+        component: "SummaryFeedback",
+        action: "📦 Final summary caricato da localStorage",
+        data: savedSummary,
+        level: "info",
+      });
     } else if (
       answers && answers.length > 0 &&
       insights && insights.length === answers.length
@@ -39,6 +61,13 @@ const SummaryFeedback = ({ answers, insights }) => {
       fetchFinalSummary();
     } else {
       setLoading(false);
+
+      logFlow({
+        component: "SummaryFeedback",
+        action: "⏸️ Skip chiamata: dati incompleti o summary già presente",
+        data: { answersLength: answers?.length, insightsLength: insights?.length },
+        level: "trace",
+      });
     }
   }, [answers, insights, language]);
 
