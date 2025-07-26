@@ -6,22 +6,21 @@ const BurnoutAnalyzer = ({ answers, language, mode = "short" }) => {
     it: {
       result: "Risultato della valutazione",
       status: "Stato attuale:",
-      high: "Rischio elevato di burnout",
-      medium: "Rischio moderato",
-      low: "Nessun segnale rilevante",
+      high: "🔴 Rischio elevato di burnout",
+      medium: "🟠 Rischio moderato",
+      low: "🟢 Nessun segnale rilevante",
       message_high:
         "⚠️ Potresti essere a rischio di burnout. Valuta una pausa o un confronto con uno specialista.",
       message_medium:
         "😐 Stai mostrando alcuni segnali di affaticamento. Prenditi del tempo per recuperare energia.",
-      message_low:
-        "✅ Al momento non ci sono segnali preoccupanti. Continua così!",
+      message_low: "✅ Al momento non ci sono segnali preoccupanti. Continua così!",
     },
     en: {
       result: "Evaluation result",
       status: "Current status:",
-      high: "High burnout risk",
-      medium: "Moderate risk",
-      low: "No significant signs",
+      high: "🔴 High burnout risk",
+      medium: "🟠 Moderate risk",
+      low: "🟢 No significant signs",
       message_high:
         "⚠️ You may be at risk of burnout. Consider a break or professional help.",
       message_medium:
@@ -31,9 +30,9 @@ const BurnoutAnalyzer = ({ answers, language, mode = "short" }) => {
     es: {
       result: "Resultado de la evaluación",
       status: "Estado actual:",
-      high: "Alto riesgo de burnout",
-      medium: "Riesgo moderado",
-      low: "Sin señales preocupantes",
+      high: "🔴 Alto riesgo de burnout",
+      medium: "🟠 Riesgo moderado",
+      low: "🟢 Sin señales preocupantes",
       message_high:
         "⚠️ Podrías estar en riesgo de burnout. Considera un descanso o consultar con un especialista.",
       message_medium:
@@ -94,29 +93,19 @@ const BurnoutAnalyzer = ({ answers, language, mode = "short" }) => {
       : "low";
 
   return (
-    <div className="p-6 bg-white rounded shadow space-y-3 text-gray-800">
-      <h2 className="text-xl font-semibold">{lang.result}</h2>
-      <p className="text-base font-medium">
-        {lang.status}{" "}
-        <span
-          className={
-            finalLevel === "high"
-              ? "text-red-600"
-              : finalLevel === "medium"
-              ? "text-yellow-600"
-              : "text-green-600"
-          }
-        >
+    <div className="space-y-2 text-[#224344] mt-6">
+      <h4 className="text-lg font-semibold">{lang.result}</h4>
+      <p className="text-base">
+        <span className="font-medium">{lang.status} </span>
+        <span className={
+          finalLevel === "high" ? "text-red-600 font-bold" :
+          finalLevel === "medium" ? "text-yellow-600 font-bold" :
+          "text-green-600 font-bold"
+        }>
           {lang[finalLevel]}
         </span>
       </p>
-      <p className="mt-2 italic">
-        {finalLevel === "high"
-          ? lang.message_high
-          : finalLevel === "medium"
-          ? lang.message_medium
-          : lang.message_low}
-      </p>
+      <p className="italic text-sm">{lang[`message_${finalLevel}`]}</p>
     </div>
   );
 };

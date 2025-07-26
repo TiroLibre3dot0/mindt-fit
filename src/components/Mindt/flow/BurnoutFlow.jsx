@@ -1,16 +1,13 @@
 // src/components/Mindt/flow/BurnoutFlow.jsx
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import StepNavigation from './StepNavigation';
-import SummaryFeedback from './SummaryFeedback';
 import InsightBox from './InsightBox';
 import getRealtimeInsight from './getRealtimeInsight';
 import { useLanguage } from '../../../context/LanguageContext';
 
-// Domande per flusso short
 import { burnoutQuestionsShort } from './burnoutQuestionsShort';
 
-// Componenti per flusso full
 import EmotionalExhaustionQuestions from './EmotionalExhaustionQuestions';
 import DepersonalizationQuestions from './DepersonalizationQuestions';
 import PersonalAchievementQuestions from './PersonalAchievementQuestions';
@@ -21,7 +18,8 @@ const BurnoutFlow = ({ mode = 'short' }) => {
   const [answers, setAnswers] = useState({});
   const [insights, setInsights] = useState([]);
   const [loadingInsight, setLoadingInsight] = useState(false);
-  const [showSummary, setShowSummary] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleAnswer = async (key, value, label) => {
     const updatedAnswers = { ...answers, [key]: value };
@@ -31,7 +29,6 @@ const BurnoutFlow = ({ mode = 'short' }) => {
       setLoadingInsight(true);
       try {
         const insight = await getRealtimeInsight(label, language, value);
-        console.log("📌 Insight ricevuto:", insight);
         const updatedInsights = [...insights];
         updatedInsights[currentStep] = insight;
         setInsights(updatedInsights);
@@ -47,7 +44,9 @@ const BurnoutFlow = ({ mode = 'short' }) => {
     if (currentStep + 1 < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      setShowSummary(true);
+      navigate("/mindt-finale", {
+        state: { answers, insights, language }
+      });
     }
   };
 
@@ -60,55 +59,49 @@ const BurnoutFlow = ({ mode = 'short' }) => {
   const totalSteps = mode === 'short' ? 6 : 3;
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 px-6 text-white">
-      {!showSummary ? (
+    <div className="max-w-4xl mx-auto mt-10 px-6 text-white">
+      {mode === 'short' && (
+        <QuestionShortStep
+          step={currentStep}
+          questions={burnoutQuestionsShort[language]}
+          answers={answers}
+          onAnswer={handleAnswer}
+          insight={insights[currentStep]}
+          loading={loadingInsight}
+        />
+      )}
+
+      {mode === 'full' && (
         <>
-          {mode === 'short' && (
-            <QuestionShortStep
-              step={currentStep}
-              questions={burnoutQuestionsShort[language]}
+          {currentStep === 0 && (
+            <EmotionalExhaustionQuestions
               answers={answers}
               onAnswer={handleAnswer}
-              insight={insights[currentStep]}
-              loading={loadingInsight}
             />
           )}
-
-          {mode === 'full' && (
-            <>
-              {currentStep === 0 && (
-                <EmotionalExhaustionQuestions
-                  answers={answers}
-                  onAnswer={handleAnswer}
-                />
-              )}
-              {currentStep === 1 && (
-                <DepersonalizationQuestions
-                  answers={answers}
-                  onAnswer={handleAnswer}
-                />
-              )}
-              {currentStep === 2 && (
-                <PersonalAchievementQuestions
-                  answers={answers}
-                  onAnswer={handleAnswer}
-                />
-              )}
-            </>
-          )}
-
-          <div className="mt-8">
-            <StepNavigation
-              onNext={handleNext}
-              onBack={handleBack}
-              isLast={currentStep + 1 === totalSteps}
-              isNextEnabled={!!answers[questionKeys[currentStep]]}
+          {currentStep === 1 && (
+            <DepersonalizationQuestions
+              answers={answers}
+              onAnswer={handleAnswer}
             />
-          </div>
+          )}
+          {currentStep === 2 && (
+            <PersonalAchievementQuestions
+              answers={answers}
+              onAnswer={handleAnswer}
+            />
+          )}
         </>
-      ) : (
-        <SummaryFeedback answers={answers} insights={insights} />
       )}
+
+      <div className="mt-8">
+        <StepNavigation
+          onNext={handleNext}
+          onBack={handleBack}
+          isLast={currentStep + 1 === totalSteps}
+          isNextEnabled={!!answers[questionKeys[currentStep]]}
+        />
+      </div>
     </div>
   );
 };
@@ -127,7 +120,6 @@ const QuestionShortStep = ({ step, questions, answers, onAnswer, insight, loadin
 
   return (
     <div className="space-y-8 text-center text-white">
-      {/* PROGRESS BAR */}
       <div className="w-full max-w-md mx-auto h-2 bg-zinc-600 rounded-full overflow-hidden">
         <div
           className="h-full bg-[#ee7a4d] transition-all duration-300"
@@ -135,16 +127,13 @@ const QuestionShortStep = ({ step, questions, answers, onAnswer, insight, loadin
         />
       </div>
 
-      {/* DOMANDA */}
       <h2 className="text-2xl md:text-3xl font-extrabold leading-snug">
         {label}
       </h2>
 
-      {/* OPZIONI */}
       <div className="grid grid-cols-2 gap-4 mt-6 max-w-md mx-auto">
         {options.map((opt, idx) => {
           const isSelected = answers[key] === idx;
-
           return (
             <button
               key={idx}
@@ -161,7 +150,6 @@ const QuestionShortStep = ({ step, questions, answers, onAnswer, insight, loadin
         })}
       </div>
 
-      {/* INSIGHT */}
       {(insight || loading) && (
         <div className="mt-6 max-w-md mx-auto">
           <InsightBox insight={insight} loading={loading} />

@@ -1,5 +1,6 @@
 // src/components/Mindt/flow/apiClient.js
 
+// 🔍 Insight per singola risposta
 export const getInsightFromGPT = async ({ question, answer, language = "en" }) => {
   try {
     const response = await fetch("http://localhost:3001/api/insight", {
@@ -7,16 +8,10 @@ export const getInsightFromGPT = async ({ question, answer, language = "en" }) =
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        question,
-        answer,
-        language,
-      }),
+      body: JSON.stringify({ question, answer, language }),
     });
 
-    if (!response.ok) {
-      throw new Error("Server response not ok");
-    }
+    if (!response.ok) throw new Error("Server response not ok");
 
     const data = await response.json();
     return data.insight;
@@ -28,6 +23,7 @@ export const getInsightFromGPT = async ({ question, answer, language = "en" }) =
   }
 };
 
+// 🧠 Riepilogo finale personalizzato
 export const getFinalSummary = async ({ answers, insights, language = "en" }) => {
   try {
     const response = await fetch("http://localhost:3001/api/final-summary", {
@@ -35,16 +31,10 @@ export const getFinalSummary = async ({ answers, insights, language = "en" }) =>
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        answers,
-        insights,
-        lang: language,
-      }),
+      body: JSON.stringify({ answers, insights, lang: language }),
     });
 
-    if (!response.ok) {
-      throw new Error("Server response not ok");
-    }
+    if (!response.ok) throw new Error("Server response not ok");
 
     const data = await response.json();
     return data.summary;

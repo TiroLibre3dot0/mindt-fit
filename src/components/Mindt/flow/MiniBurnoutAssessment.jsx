@@ -18,6 +18,9 @@ const MiniBurnoutAssessment = ({ onComplete }) => {
     if (currentIndex + 1 < questions.length) {
       setCurrentIndex(currentIndex + 1);
     } else {
+      // ✅ Salva le risposte in localStorage per il riepilogo finale
+      localStorage.setItem("burnoutAnswers", JSON.stringify(newAnswers));
+      // 🔁 L'onComplete notifica il completamento con i dati
       onComplete(newAnswers);
     }
   };
