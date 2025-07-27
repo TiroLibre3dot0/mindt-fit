@@ -136,7 +136,7 @@ const MindtFinale = () => {
           </button>
 
           <button
-            onClick={() => navigate("/shop")}
+            onClick={() => navigate("/Shop")}
             className="w-full max-w-sm bg-white text-[#224344] border-2 border-[#224344] hover:bg-[#fefefe] text-lg font-semibold py-4 px-6 rounded-2xl shadow-lg transition"
           >
             {t.explore}

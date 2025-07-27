@@ -11,24 +11,31 @@ import FlowDebugger from "./components/Dev/FlowDebugger";
 import Register from "./components/Mindt/RegisterLogin/Register";
 import Login from "./components/Mindt/RegisterLogin/Login";
 
+// ✅ Importa la nuova pagina shop
+import ShopPage from "./components/Mindt/Shop/ShopPage";
+
 const App = () => {
   return (
     <LanguageProvider>
       <Router>
         <Toaster position="top-right" />
         <Routes>
+          {/* 🧠 Home + percorso */}
           <Route path="/" element={<MindtPage />} />
           <Route path="/mindt-finale" element={<MindtFinale />} />
 
-          {/* ✅ Route di autenticazione */}
+          {/* 🛒 Shop */}
+          <Route path="/shop" element={<ShopPage />} />
+
+          {/* 👤 Autenticazione */}
           <Route path="/mindt-register" element={<Register />} />
           <Route path="/mindt-login" element={<Login />} />
 
-          {/* ✅ Route fallback */}
+          {/* 🚫 Fallback */}
           <Route path="*" element={<MindtPage />} />
         </Routes>
 
-        {/* ✅ Flow debugger solo in sviluppo */}
+        {/* 🐛 Debug solo in sviluppo */}
         {import.meta.env.DEV && <FlowDebugger />}
       </Router>
     </LanguageProvider>

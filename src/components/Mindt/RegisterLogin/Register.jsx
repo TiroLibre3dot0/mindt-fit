@@ -1,3 +1,4 @@
+// src/components/Mindt/RegisterLogin/Register.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthInput from "./AuthInput";
@@ -9,10 +10,56 @@ import RegisterLoginWrapper from "./RegisterLoginWrapper";
 import toast from "react-hot-toast";
 import { getAuth } from "firebase/auth";
 import { saveUserProfile } from "./firestoreService";
+import { useLanguage } from "../../../context/LanguageContext";
 
 const Register = () => {
   const navigate = useNavigate();
   const { registerUser, loginWithGoogleAccount } = useAuth();
+  const { language } = useLanguage();
+
+  const translations = {
+    it: {
+      title: "Crea il tuo profilo Mindt",
+      name: "Nome",
+      surname: "Cognome",
+      email: "Email",
+      password: "Password",
+      confirmPassword: "Conferma Password",
+      register: "Registrati con Email",
+      google: "Registrati con Google",
+      already: "Hai già un profilo?",
+      login: "Accedi",
+      error: "Le password non coincidono",
+    },
+    en: {
+      title: "Create your Mindt profile",
+      name: "First Name",
+      surname: "Last Name",
+      email: "Email",
+      password: "Password",
+      confirmPassword: "Confirm Password",
+      register: "Sign Up with Email",
+      google: "Sign Up with Google",
+      already: "Already have an account?",
+      login: "Login",
+      error: "Passwords do not match",
+    },
+    es: {
+      title: "Crea tu perfil Mindt",
+      name: "Nombre",
+      surname: "Apellido",
+      email: "Correo electrónico",
+      password: "Contraseña",
+      confirmPassword: "Confirmar contraseña",
+      register: "Regístrate con Email",
+      google: "Regístrate con Google",
+      already: "¿Ya tienes una cuenta?",
+      login: "Iniciar sesión",
+      error: "Las contraseñas no coinciden",
+    },
+  };
+
+  const t = translations[language];
 
   const [form, setForm] = useState({
     name: "",
@@ -29,7 +76,7 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
-      toast.error("Le password non coincidono");
+      toast.error(t.error);
       return;
     }
 
@@ -42,6 +89,7 @@ const Register = () => {
         name: form.name,
         surname: form.surname,
         email: form.email,
+        language,
       });
 
       navigate("/mindt-dashboard");
@@ -56,47 +104,45 @@ const Register = () => {
   return (
     <RegisterLoginWrapper>
       <form onSubmit={handleRegister} className="flex flex-col gap-3">
-        <h2 className="text-2xl font-bold text-white text-center mb-2">
-          Crea il tuo profilo Mindt
-        </h2>
+        <h2 className="text-2xl font-bold text-white text-center mb-2">{t.title}</h2>
 
         <AuthInput
           type="text"
           name="name"
-          placeholder="Nome"
+          placeholder={t.name}
           value={form.name}
           onChange={handleChange}
         />
         <AuthInput
           type="text"
           name="surname"
-          placeholder="Cognome"
+          placeholder={t.surname}
           value={form.surname}
           onChange={handleChange}
         />
         <AuthInput
           type="email"
           name="email"
-          placeholder="Email"
+          placeholder={t.email}
           value={form.email}
           onChange={handleChange}
         />
         <AuthInput
           type="password"
           name="password"
-          placeholder="Password"
+          placeholder={t.password}
           value={form.password}
           onChange={handleChange}
         />
         <AuthInput
           type="password"
           name="confirmPassword"
-          placeholder="Conferma Password"
+          placeholder={t.confirmPassword}
           value={form.confirmPassword}
           onChange={handleChange}
         />
 
-        <AuthButton text="Registrati con Email" className="bg-[#f17b4e] hover:bg-[#e56733]" />
+        <AuthButton text={t.register} className="bg-[#f17b4e] hover:bg-[#e56733]" />
 
         <button
           type="button"
@@ -104,14 +150,10 @@ const Register = () => {
           className="w-full flex items-center justify-center gap-3 border border-white/30 bg-white/10 text-white py-3 rounded-xl hover:bg-white/20 transition"
         >
           <FcGoogle size={20} />
-          <span className="text-sm font-medium">Registrati con Google</span>
+          <span className="text-sm font-medium">{t.google}</span>
         </button>
 
-        <ToggleAuthMode
-          text="Hai già un profilo?"
-          linkText="Accedi"
-          to="/mindt-login"
-        />
+        <ToggleAuthMode text={t.already} linkText={t.login} to="/mindt-login" />
       </form>
     </RegisterLoginWrapper>
   );
