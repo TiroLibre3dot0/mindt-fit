@@ -36,7 +36,7 @@ const MindtPage = () => {
             {/* Illustrazione solo per mobile */}
             <div className="md:hidden mb-6">
               <img
-                src="/rightside2.png"
+                src="/rightside3.png"
                 alt="Wellness"
                 className="w-4/5 mx-auto max-w-[300px] object-contain"
               />
@@ -51,7 +51,7 @@ const MindtPage = () => {
       {/* COLONNA DESTRA SOLO DESKTOP */}
       <div className="hidden md:flex md:w-1/2 justify-center items-center bg-[#224344] p-4">
         <img
-          src="/rightside2.png"
+          src="/rightside3.png"
           alt="Wellness Illustration"
           className="w-full max-w-[500px] h-auto object-contain"
         />
