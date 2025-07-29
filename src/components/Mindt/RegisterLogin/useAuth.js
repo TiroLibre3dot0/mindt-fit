@@ -4,7 +4,7 @@ import {
   loginWithEmail,
   loginWithGoogle,
 } from "./authService";
-import { updateLastLogin } from "./firestoreService";
+import { saveUserProfile, updateLastLogin } from "./firestoreService";
 import toast from "react-hot-toast";
 import { getAuth } from "firebase/auth";
 
@@ -15,6 +15,9 @@ export const useAuth = () => {
     setLoading(true);
     try {
       await registerWithEmail(email, password);
+      const auth = getAuth();
+      const user = auth.currentUser;
+      await saveUserProfile(user.uid, { email: user.email });
       toast.success("Registrazione completata");
       return true;
     } catch (err) {
@@ -46,7 +49,14 @@ export const useAuth = () => {
     try {
       await loginWithGoogle();
       const auth = getAuth();
-      await updateLastLogin(auth.currentUser.uid);
+      const user = auth.currentUser;
+
+      // Assicura creazione documento se non esiste
+      await saveUserProfile(user.uid, {
+        email: user.email,
+        name: user.displayName || "",
+      });
+
       toast.success("Accesso con Google completato");
       return true;
     } catch (err) {

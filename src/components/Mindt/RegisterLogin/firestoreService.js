@@ -1,16 +1,26 @@
-import { doc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../../firebase";
 
-export const saveUserProfile = async (uid, data) => {
-  await setDoc(doc(db, "users", uid), {
-    ...data,
-    createdAt: serverTimestamp(),
-    lastLogin: serverTimestamp(),
-  });
+// Crea o aggiorna il documento utente
+export const saveUserProfile = async (uid, data = {}) => {
+  await setDoc(
+    doc(db, "users", uid),
+    {
+      ...data,
+      createdAt: serverTimestamp(),
+      lastLogin: serverTimestamp(),
+    },
+    { merge: true } // se esiste aggiorna, altrimenti crea
+  );
 };
 
+// Solo aggiornamento lastLogin
 export const updateLastLogin = async (uid) => {
-  await updateDoc(doc(db, "users", uid), {
-    lastLogin: serverTimestamp(),
-  });
+  await setDoc(
+    doc(db, "users", uid),
+    {
+      lastLogin: serverTimestamp(),
+    },
+    { merge: true }
+  );
 };
