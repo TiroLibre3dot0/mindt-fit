@@ -1,4 +1,3 @@
-// /api/insight.js
 import { Configuration, OpenAIApi } from "openai";
 
 export default async function handler(req, res) {
@@ -7,6 +6,12 @@ export default async function handler(req, res) {
   }
 
   const { question, answer, language } = req.body;
+
+  // 🔒 Verifica che la chiave OpenAI sia presente
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("❌ OPENAI_API_KEY non definita nel backend.");
+    return res.status(500).json({ error: "API key mancante nel server." });
+  }
 
   try {
     const configuration = new Configuration({
@@ -39,12 +44,16 @@ export default async function handler(req, res) {
     const result = completion.data.choices?.[0]?.message?.content;
 
     if (!result) {
-      throw new Error("Insight non generato da GPT");
+      console.error("❌ Nessun contenuto restituito da GPT.");
+      return res.status(500).json({ error: "Insight non generato da GPT." });
     }
 
     res.status(200).json({ insight: result });
   } catch (error) {
-    console.error("❌ Insight API Error:", error);
+    console.error("❌ Insight API Error:", {
+      message: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: "Errore nella generazione dell’insight." });
   }
 }
