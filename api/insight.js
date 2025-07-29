@@ -1,3 +1,4 @@
+// /api/insight.js
 import { Configuration, OpenAIApi } from "openai";
 
 export default async function handler(req, res) {
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
     const openai = new OpenAIApi(configuration);
 
     const prompt = `
-      Rispondi in ${language}. 
+      Rispondi in ${language}.
       Domanda: ${question}
       Risposta dell'utente: ${answer}
       Genera un breve insight empatico e motivazionale in massimo due frasi.
@@ -24,14 +25,26 @@ export default async function handler(req, res) {
     const completion = await openai.createChatCompletion({
       model: "gpt-4",
       messages: [
-        { role: "system", content: `Sei un coach digitale esperto in burnout. Rispondi sempre in ${language}.` },
-        { role: "user", content: prompt },
+        {
+          role: "system",
+          content: `Sei un coach digitale esperto in burnout. Rispondi sempre in ${language}.`,
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
       ],
     });
 
-    res.status(200).json({ insight: completion.data.choices[0].message.content });
+    const result = completion.data.choices?.[0]?.message?.content;
+
+    if (!result) {
+      throw new Error("Insight non generato da GPT");
+    }
+
+    res.status(200).json({ insight: result });
   } catch (error) {
     console.error("❌ Insight API Error:", error);
-    res.status(500).json({ error: "Errore nella generazione dell’insight" });
+    res.status(500).json({ error: "Errore nella generazione dell’insight." });
   }
 }

@@ -8,6 +8,12 @@ const getRealtimeInsight = async (question, answer, language = "en") => {
       body: JSON.stringify({ question, answer, language }),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Insight API response:", errorText);
+      throw new Error("Insight generation failed");
+    }
+
     const data = await response.json();
     console.log("✅ Insight ricevuto dal server:", data.insight);
     return data.insight;
