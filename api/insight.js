@@ -1,5 +1,9 @@
 // /api/insight.js
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -8,23 +12,14 @@ export default async function handler(req, res) {
 
   const { question, answer, language } = req.body;
 
-  // 🔍 DEBUG LOG
   console.log("➡️ Incoming request to /api/insight:", { question, answer, language });
 
+  if (!openai.apiKey) {
+    console.error("❌ OPENAI_API_KEY is not defined");
+    return res.status(500).json({ error: "OpenAI API key not set in environment." });
+  }
+
   try {
-    const apiKey = process.env.OPENAI_API_KEY;
-
-    if (!apiKey) {
-      console.error("❌ OPENAI_API_KEY is not defined");
-      return res.status(500).json({ error: "OpenAI API key not set in environment." });
-    }
-
-    const configuration = new Configuration({
-      apiKey,
-    });
-
-    const openai = new OpenAIApi(configuration);
-
     const prompt = `
       Rispondi in ${language}.
       Domanda: ${question}
@@ -32,7 +27,7 @@ export default async function handler(req, res) {
       Genera un breve insight empatico e motivazionale in massimo due frasi.
     `;
 
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
         {
@@ -46,7 +41,7 @@ export default async function handler(req, res) {
       ],
     });
 
-    const result = completion.data.choices?.[0]?.message?.content;
+    const result = completion.choices?.[0]?.message?.content;
 
     if (!result) {
       console.error("❌ GPT returned no insight.");
