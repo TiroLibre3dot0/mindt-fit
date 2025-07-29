@@ -1,4 +1,3 @@
-// src/components/Mindt/mindtFinale.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LanguageSwitcher from "../../LanguageSwitcher";
@@ -9,16 +8,20 @@ const MindtFinale = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [show, setShow] = useState(false);
-  const [answers, setAnswers] = useState([]);
+  const [answers, setAnswers] = useState({});
   const [insights, setInsights] = useState([]);
   const [randomSnack, setRandomSnack] = useState(null);
   const [randomPerson, setRandomPerson] = useState(null);
 
   useEffect(() => {
-    const storedAnswers = JSON.parse(localStorage.getItem("burnoutAnswers") || "[]");
-    const storedInsights = JSON.parse(localStorage.getItem("burnoutInsights") || "[]");
-    setAnswers(storedAnswers);
-    setInsights(storedInsights);
+    try {
+      const storedAnswers = JSON.parse(localStorage.getItem("burnoutAnswers") || "{}");
+      const storedInsights = JSON.parse(localStorage.getItem("burnoutInsights") || "[]");
+      setAnswers(storedAnswers);
+      setInsights(storedInsights);
+    } catch (error) {
+      console.error("Errore parsing localStorage:", error);
+    }
 
     const snackImgs = [1, 2, 3, 4, 5, 6];
     const peopleImgs = [1, 2, 3, 4, 5, 6];
@@ -72,7 +75,11 @@ const MindtFinale = () => {
   };
 
   return (
-    <div className={`min-h-screen w-full flex items-center justify-center transition-all duration-1000 ease-in-out ${show ? "bg-[#ffccc9]" : "bg-[#224344]"} relative overflow-hidden font-sans`}>
+    <div
+      className={`min-h-screen w-full flex items-center justify-center transition-all duration-1000 ease-in-out ${
+        show ? "bg-[#ffccc9]" : "bg-[#224344]"
+      } relative overflow-hidden font-sans`}
+    >
       {/* Language switcher */}
       <div className="absolute top-4 right-4 z-10">
         <LanguageSwitcher showLabel={false} />
@@ -97,7 +104,10 @@ const MindtFinale = () => {
           <h1 className="text-4xl sm:text-5xl font-bold font-[Fredoka]">{t.title}</h1>
           <p className="text-md sm:text-lg">{t.subtitle}</p>
           <SummaryFeedback answers={answers} insights={insights} />
-          <button onClick={handleRestart} className="text-sm text-blue-800 underline font-semibold mt-4">
+          <button
+            onClick={handleRestart}
+            className="text-sm text-blue-800 underline font-semibold mt-4"
+          >
             {t.restart}
           </button>
         </div>
@@ -118,9 +128,7 @@ const MindtFinale = () => {
             onClick={() => navigate("/Shop")}
             className="w-full max-w-sm bg-white text-[#224344] border-2 border-[#224344] hover:scale-105 text-lg font-semibold py-4 px-6 rounded-full shadow-md transition-all duration-300 flex flex-col items-center"
           >
-            <span className="flex items-center gap-2">
-              🧠 {t.explore}
-            </span>
+            <span className="flex items-center gap-2">🧠 {t.explore}</span>
             <p className="text-sm font-normal mt-1">{t.exploreDesc}</p>
           </button>
         </div>

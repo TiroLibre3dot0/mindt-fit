@@ -42,7 +42,7 @@ const BurnoutFlow = ({ mode = 'short' }) => {
   if (mode === 'short') {
     setLoadingInsight(true);
     try {
-      const insight = await getRealtimeInsight(label, language, value);
+      const insight = await getRealtimeInsight(label, value, language);
       const updatedInsights = [...insights];
       updatedInsights[currentStep] = insight;
       setInsights(updatedInsights);

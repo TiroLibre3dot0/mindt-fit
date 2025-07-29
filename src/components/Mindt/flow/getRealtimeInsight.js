@@ -1,10 +1,11 @@
 // src/components/Mindt/flow/getRealtimeInsight.js
-const getRealtimeInsight = async (question, lang, answer) => {
+
+const getRealtimeInsight = async (question, answer, language = "en") => {
   try {
-    const response = await fetch("http://localhost:3001/api/insight", {
+    const response = await fetch("/api/insight", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question, answer, lang }),
+      body: JSON.stringify({ question, answer, language }),
     });
 
     const data = await response.json();
@@ -12,7 +13,9 @@ const getRealtimeInsight = async (question, lang, answer) => {
     return data.insight;
   } catch (error) {
     console.error("❌ GPT API Error:", error.message);
-    return "⚠️ Insight non disponibile al momento.";
+    return language === "it"
+      ? "⚠️ Insight non disponibile al momento."
+      : "⚠️ Insight temporarily unavailable.";
   }
 };
 

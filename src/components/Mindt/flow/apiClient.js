@@ -1,9 +1,7 @@
-// src/components/Mindt/flow/apiClient.js
-
 // 🔍 Insight per singola risposta
 export const getInsightFromGPT = async ({ question, answer, language = "en" }) => {
   try {
-    const response = await fetch("http://localhost:3001/api/insight", {
+    const response = await fetch("/api/insight", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -26,7 +24,7 @@ export const getInsightFromGPT = async ({ question, answer, language = "en" }) =
 // 🧠 Riepilogo finale personalizzato
 export const getFinalSummary = async ({ answers, insights, language = "en" }) => {
   try {
-    const response = await fetch("http://localhost:3001/api/final-summary", {
+    const response = await fetch("/api/final-summary", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

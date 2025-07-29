@@ -45,9 +45,9 @@ const BurnoutAnalyzer = ({ answers, language, mode = "short" }) => {
 
   const getShortScore = (area) => {
     const keys = {
-      EE: ["ee1", "ee2"],
-      DP: ["dp1", "dp2"],
-      RP: ["rp1", "rp2"],
+      EE: ["EE1", "EE2"],
+      DP: ["DP1", "DP2"],
+      RP: ["RP1", "RP2"],
     };
     return keys[area]
       .map((key) => answers[key] || 0)
@@ -55,11 +55,11 @@ const BurnoutAnalyzer = ({ answers, language, mode = "short" }) => {
   };
 
   const getFullScore = (prefix, count) =>
-    Array.from({ length: count }, (_, i) => answers[`${prefix}${i + 1}`] || 0).reduce((a, b) => a + b, 0);
+    Array.from({ length: count }, (_, i) => answers[`${prefix.toUpperCase()}${i + 1}`] || 0).reduce((a, b) => a + b, 0);
 
-  const ee = mode === "short" ? getShortScore("EE") : getFullScore("ee", 9);
-  const dp = mode === "short" ? getShortScore("DP") : getFullScore("dp", 5);
-  const rp = mode === "short" ? getShortScore("RP") : getFullScore("rp", 8);
+  const ee = mode === "short" ? getShortScore("EE") : getFullScore("EE", 9);
+  const dp = mode === "short" ? getShortScore("DP") : getFullScore("DP", 5);
+  const rp = mode === "short" ? getShortScore("RP") : getFullScore("RP", 8);
 
   const getLevel = (score, area) => {
     const thresholds = burnoutThresholds[area][mode];
@@ -97,11 +97,15 @@ const BurnoutAnalyzer = ({ answers, language, mode = "short" }) => {
       <h4 className="text-lg font-semibold">{lang.result}</h4>
       <p className="text-base">
         <span className="font-medium">{lang.status} </span>
-        <span className={
-          finalLevel === "high" ? "text-red-600 font-bold" :
-          finalLevel === "medium" ? "text-yellow-600 font-bold" :
-          "text-green-600 font-bold"
-        }>
+        <span
+          className={
+            finalLevel === "high"
+              ? "text-red-600 font-bold"
+              : finalLevel === "medium"
+              ? "text-yellow-600 font-bold"
+              : "text-green-600 font-bold"
+          }
+        >
           {lang[finalLevel]}
         </span>
       </p>

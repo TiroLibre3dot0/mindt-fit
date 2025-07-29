@@ -1,9 +1,8 @@
-// src/components/Mindt/flow/SummaryFeedback.jsx
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "../../../context/LanguageContext";
 import { getFinalSummary } from "./apiClient";
 import BurnoutAnalyzer from "./BurnoutAnalyzer";
-import { logFlow } from "../../../utils/logFlow"; // ✅ IMPORT AGGIUNTO
+import { logFlow } from "../../../utils/logFlow";
 
 const SummaryFeedback = ({ answers, insights }) => {
   const { language } = useLanguage();
@@ -14,6 +13,11 @@ const SummaryFeedback = ({ answers, insights }) => {
 
   useEffect(() => {
     const localKey = `mindtFinalSummary_${language}`;
+
+    const hasValidData =
+      Object.keys(answers || {}).length > 0 &&
+      Array.isArray(insights) &&
+      insights.length === Object.keys(answers).length;
 
     const fetchFinalSummary = async () => {
       try {
@@ -54,10 +58,7 @@ const SummaryFeedback = ({ answers, insights }) => {
         data: savedSummary,
         level: "info",
       });
-    } else if (
-      answers && answers.length > 0 &&
-      insights && insights.length === answers.length
-    ) {
+    } else if (hasValidData) {
       fetchFinalSummary();
     } else {
       setLoading(false);
@@ -65,7 +66,10 @@ const SummaryFeedback = ({ answers, insights }) => {
       logFlow({
         component: "SummaryFeedback",
         action: "⏸️ Skip chiamata: dati incompleti o summary già presente",
-        data: { answersLength: answers?.length, insightsLength: insights?.length },
+        data: {
+          answersLength: Object.keys(answers || {}).length,
+          insightsLength: insights?.length,
+        },
         level: "trace",
       });
     }
@@ -135,7 +139,7 @@ const SummaryFeedback = ({ answers, insights }) => {
         </div>
       )}
 
-      {answers && answers.length > 0 && (
+      {Object.keys(answers || {}).length > 0 && (
         <BurnoutAnalyzer answers={answers} language={language} />
       )}
     </div>
