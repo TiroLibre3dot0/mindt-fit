@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StepNavigation from './StepNavigation';
-import InsightBox from './InsightBox';
 import getRealtimeInsight from './getRealtimeInsight';
 import { useLanguage } from '../../../context/LanguageContext';
 import { burnoutQuestionsShort } from './burnoutQuestionsShort';
@@ -11,7 +10,7 @@ import DepersonalizationQuestions from './DepersonalizationQuestions';
 import PersonalAchievementQuestions from './PersonalAchievementQuestions';
 import { logFlow } from '../../../utils/logFlow';
 
-const BurnoutFlow = ({ mode = 'short' }) => {
+const BurnoutFlow = ({ mode = 'short', onInsightChange, onNextQuestion }) => {
   const { language } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -26,69 +25,76 @@ const BurnoutFlow = ({ mode = 'short' }) => {
   }, []);
 
   const handleAnswer = async (key, value, label) => {
-  const updatedAnswers = { ...answers, [key]: value };
-  setAnswers(updatedAnswers);
+    const updatedAnswers = { ...answers, [key]: value };
+    setAnswers(updatedAnswers);
 
-  // ✅ AGGIUNTA LOG
-  logFlow({
-  component: "BurnoutFlow",
-  action: `Answered ${label}`,
-  data: {
-    questionKey: key,
-    answerValue: value
-  }
-});
-
-  if (mode === 'short') {
-    setLoadingInsight(true);
-    try {
-      const insight = await getRealtimeInsight(label, value, language);
-      const updatedInsights = [...insights];
-      updatedInsights[currentStep] = insight;
-      setInsights(updatedInsights);
-    } catch (error) {
-      console.error("Errore generazione insight:", error);
-    } finally {
-      setLoadingInsight(false);
-    }
-  }
-};
-
-
-  const handleNext = () => {
-  logFlow({
-    component: "BurnoutFlow",
-    action: "Clicked → Avanti",
-    data: { currentStep }
-  });
-
-  if (currentStep + 1 < totalSteps) {
-    setCurrentStep(currentStep + 1);
-  } else {
-    localStorage.setItem("burnoutAnswers", JSON.stringify(
-  Object.entries(answers).map(([question, score]) => ({ question, score }))
-));
-localStorage.setItem("burnoutInsights", JSON.stringify(insights));
-navigate("/mindt-finale");
     logFlow({
       component: "BurnoutFlow",
-      action: "Test completato",
-      data: { answers, insights }
-    });   
-  }
-};
+      action: `Answered ${label}`,
+      data: {
+        questionKey: key,
+        answerValue: value
+      }
+    });
+
+    if (mode === 'short') {
+      setLoadingInsight(true);
+      if (onInsightChange) onInsightChange(null, true);
+
+      try {
+        const insight = await getRealtimeInsight(label, value, language);
+        const updatedInsights = [...insights];
+        updatedInsights[currentStep] = insight;
+        setInsights(updatedInsights);
+
+        if (onInsightChange) onInsightChange(insight, false);
+      } catch (error) {
+        console.error("Errore generazione insight:", error);
+        if (onInsightChange) onInsightChange(null, false);
+      } finally {
+        setLoadingInsight(false);
+      }
+    }
+  };
+
+  const handleNext = () => {
+    logFlow({
+      component: "BurnoutFlow",
+      action: "Clicked → Avanti",
+      data: { currentStep }
+    });
+
+    if (onNextQuestion) onNextQuestion(); // 👈 RIGA AGGIUNTA
+
+    if (currentStep + 1 < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      localStorage.setItem("burnoutAnswers", JSON.stringify(
+        Object.entries(answers).map(([question, score]) => ({ question, score }))
+      ));
+      localStorage.setItem("burnoutInsights", JSON.stringify(insights));
+
+      navigate("/mindt-finale");
+
+      logFlow({
+        component: "BurnoutFlow",
+        action: "Test completato",
+        data: { answers, insights }
+      });
+    }
+  };
 
   const handleBack = () => {
-  logFlow({
-    component: "BurnoutFlow",
-    action: "Clicked ← Indietro",
-    data: { currentStep }
-  });
+    logFlow({
+      component: "BurnoutFlow",
+      action: "Clicked ← Indietro",
+      data: { currentStep }
+    });
 
-  if (currentStep > 0) {
-    setCurrentStep(currentStep - 1);
-  }
-};
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto mt-10 px-6 text-white">
@@ -98,8 +104,6 @@ navigate("/mindt-finale");
           questions={burnoutQuestionsShort[language]}
           answers={answers}
           onAnswer={handleAnswer}
-          insight={insights[currentStep]}
-          loading={loadingInsight}
         />
       )}
 
@@ -142,7 +146,7 @@ export default BurnoutFlow;
 
 const questionKeys = ['EE1', 'EE2', 'DP1', 'DP2', 'RP1', 'RP2'];
 
-const QuestionShortStep = ({ step, questions, answers, onAnswer, insight, loading }) => {
+const QuestionShortStep = ({ step, questions, answers, onAnswer }) => {
   const key = questionKeys[step];
   const label = questions[key];
   const options = questions.options;
@@ -181,12 +185,6 @@ const QuestionShortStep = ({ step, questions, answers, onAnswer, insight, loadin
           );
         })}
       </div>
-
-      {(insight || loading) && (
-        <div className="mt-6 max-w-md mx-auto">
-          <InsightBox insight={insight} loading={loading} />
-        </div>
-      )}
     </div>
   );
 };

@@ -14,7 +14,7 @@ The user was asked:
 They replied:
 "${answer}"
 
-Write a very short and warm reflection in ${lang}, strictly within 20 words.
+Write a very short and warm reflection in ${lang}, strictly within 10 words.
 
 🟢 Tone: friendly, grounded, never generic and always proactive
 🔴 Do not mention other people, statistics, or what's common.

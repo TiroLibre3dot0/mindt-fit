@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import BurnoutFlow from "./flow/BurnoutFlow";
 import LanguageSwitcher from "../LanguageSwitcher";
 import IntroText from "./IntroText";
-import InsightBox from "./flow/InsightBox"; // ✅ usa questo
+import InsightBox from "./flow/InsightBox";
 import { useLanguage } from "../../context/LanguageContext";
 
 const MindtPage = () => {
   const [started, setStarted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentInsight, setCurrentInsight] = useState(null);
+  const [insightLoading, setInsightLoading] = useState(false);
   const { language } = useLanguage();
 
   const handleStart = () => {
@@ -17,17 +19,6 @@ const MindtPage = () => {
       setLoading(false);
     }, 1000);
   };
-
-  // ✅ Recupera ultimo insight da localStorage
-  let lastInsight = null;
-  try {
-    const insights = JSON.parse(localStorage.getItem("burnoutInsights") || "[]");
-    const answers = JSON.parse(localStorage.getItem("burnoutAnswers") || "{}");
-    const lastIndex = Object.keys(answers).length - 1;
-    lastInsight = insights[lastIndex] || null;
-  } catch (err) {
-    lastInsight = null;
-  }
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#224344] text-white relative">
@@ -44,37 +35,58 @@ const MindtPage = () => {
       {/* COLONNA SINISTRA */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-4 py-8 sm:px-8 md:p-12">
         {!started ? (
-          <>
-            {/* Illustrazione solo per mobile */}
-            <div className="md:hidden mb-6">
-              <img
-                src="/rightside3.png"
-                alt="Wellness"
-                className="w-4/5 mx-auto max-w-[300px] object-contain"
-              />
-            </div>
-            <IntroText key={language} onStart={handleStart} />
-          </>
+          <div className="md:hidden mb-6">
+            <img
+              src="/rightside3.png"
+              alt="Wellness"
+              className="w-4/5 mx-auto max-w-[300px] object-contain"
+            />
+          </div>
+        ) : null}
+
+        {!started ? (
+          <IntroText key={language} onStart={handleStart} />
         ) : (
-          <BurnoutFlow mode="short" />
+          <BurnoutFlow
+            mode="short"
+            onInsightChange={(insight, loading) => {
+              setInsightLoading(loading);
+              setCurrentInsight(insight);
+            }}
+            onNextQuestion={() => setCurrentInsight(null)} // ✅ INSERITO QUI
+          />
         )}
       </div>
 
       {/* COLONNA DESTRA SOLO DESKTOP */}
-      <div className="hidden md:flex md:w-1/2 justify-center items-center bg-[#224344] p-4 relative">
-        {/* Insight come balloon sopra l'immagine */}
-        {started && lastInsight && (
-          <div className="absolute top-10 right-10 w-[300px] z-20">
-            <InsightBox insight={lastInsight} />
-          </div>
-        )}
+      <div className="hidden md:flex md:w-1/2 justify-center items-center bg-[#224344] p-4 relative transition-all duration-700 ease-in-out">
+        <div className="relative w-full max-w-[460px] pb-10">
+          {/* InsightBox come balloon */}
+          {started && (
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 w-[340px] animate-fade-in-up drop-shadow-md">
+              {insightLoading ? (
+                <div className="flex items-center justify-center space-x-2 animate-pulse">
+                  <div className="w-3 h-3 bg-yellow-400 rounded-full" />
+                  <div className="w-3 h-3 bg-yellow-400 rounded-full" />
+                  <div className="w-3 h-3 bg-yellow-400 rounded-full" />
+                </div>
+              ) : currentInsight ? (
+                <div className="animate-in fade-in slide-in-from-top duration-500">
+                  <InsightBox insight={currentInsight} />
+                </div>
+              ) : null}
+            </div>
+          )}
 
-        {/* Immagine fissa */}
-        <img
-          src="/rightside3.png"
-          alt="Wellness Illustration"
-          className="w-full max-w-[500px] h-auto object-contain"
-        />
+          {/* IMMAGINE */}
+          <img
+            src="/rightside3.png"
+            alt="Wellness Illustration"
+            className={`w-full h-auto object-contain transition-transform duration-700 ${
+              started ? "scale-90 translate-y-20" : "scale-100 translate-y-0"
+            }`}
+          />
+        </div>
       </div>
     </div>
   );

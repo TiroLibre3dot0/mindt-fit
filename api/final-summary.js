@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       .join("\n\n");
 
     const prompt = `
-Analizza il seguente percorso risposte + insight + punteggi. Massimo 4 frasi. Tono realistico, motivazionale.
+Analizza il seguente percorso risposte + insight + punteggi. Massimo 2 frasi. Tono realistico, motivazionale.
 Rispondi in ${lang}.
 
 ${scoreSummary}
@@ -39,7 +39,7 @@ ${text}
         {
           role: "system",
           content:
-            "Sei un assistente empatico che analizza punteggi e insight per creare un riassunto motivazionale dello stato psicofisico dell’utente.",
+            "Sei un assistente empatico che analizza punteggi e insight per creare un riassunto motivazionale dello stato psicofisico dell’utente di massimo 2 frasi.",
         },
         {
           role: "user",
