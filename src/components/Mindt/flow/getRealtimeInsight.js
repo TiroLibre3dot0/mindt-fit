@@ -1,11 +1,14 @@
 // src/components/Mindt/flow/getRealtimeInsight.js
 
 const getRealtimeInsight = async (question, answer, language = "en") => {
+  const isLocalhost = window.location.hostname === "localhost";
+  const baseUrl = isLocalhost ? "http://localhost:3001" : "";
+
   try {
-    const response = await fetch("/api/insight", {
+    const response = await fetch(`${baseUrl}/api/insight`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question, answer, language }),
+      body: JSON.stringify({ question, answer, lang: language }), // ✅ "lang" invece di "language"
     });
 
     if (!response.ok) {
