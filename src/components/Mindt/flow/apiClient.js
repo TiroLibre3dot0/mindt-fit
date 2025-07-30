@@ -1,7 +1,10 @@
+// 🌐 URL del server backend dove girano le API
+const API_BASE_URL = "http://localhost:4000";
+
 // 🔍 Insight per singola risposta
 export const getInsightFromGPT = async ({ question, answer, language = "en" }) => {
   try {
-    const response = await fetch("/api/insight", {
+    const response = await fetch(`${API_BASE_URL}/api/insight`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -22,17 +25,17 @@ export const getInsightFromGPT = async ({ question, answer, language = "en" }) =
 };
 
 // 🧠 Riepilogo finale personalizzato
-export const getFinalSummary = async ({ answers, insights, language = "en" }) => {
+export const getFinalSummary = async ({ answers, insights, language = "en", ee, dp, rp }) => {
   try {
-    const response = await fetch("/api/final-summary", {
+    const response = await fetch(`${API_BASE_URL}/api/final-summary`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ answers, insights, lang: language }),
+      body: JSON.stringify({ answers, insights, language, ee, dp, rp }),
     });
 
-    if (!response.ok) throw new Error("Server response not ok");
+    if (!response.ok) throw new Error("Server response not ok in getFinalSummary");
 
     const data = await response.json();
     return data.summary;

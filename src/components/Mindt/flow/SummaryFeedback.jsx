@@ -11,17 +11,55 @@ const SummaryFeedback = ({ answers, insights }) => {
   const [expanded, setExpanded] = useState(false);
   const [showBox, setShowBox] = useState(false);
 
+  const computeScores = (answers) => {
+    const keys = {
+      EE: ["EE1", "EE2"],
+      DP: ["DP1", "DP2"],
+      RP: ["RP1", "RP2"],
+    };
+    const sum = (keys) => keys.map((k) => answers[k] || 0).reduce((a, b) => a + b, 0);
+    return {
+      ee: sum(keys.EE),
+      dp: sum(keys.DP),
+      rp: sum(keys.RP),
+    };
+  };
+
   useEffect(() => {
     const localKey = `mindtFinalSummary_${language}`;
+    const savedSummary = localStorage.getItem(localKey);
+    const hasAnswers = answers && Object.keys(answers).length > 0;
 
-    const hasValidData =
-      Object.keys(answers || {}).length > 0 &&
-      Array.isArray(insights) &&
-      insights.length === Object.keys(answers).length;
+    console.log("🟡 INIT SummaryFeedback → answers:", answers);
+    console.log("🟡 INIT SummaryFeedback → insights:", insights);
+
+    if (!hasAnswers) {
+      console.warn("⚠️ Nessuna risposta trovata, skip chiamata API.");
+      logFlow({
+        component: "SummaryFeedback",
+        action: "⏸️ Skip chiamata: risposte assenti",
+        data: answers,
+        level: "trace",
+      });
+      setLoading(false);
+      return;
+    }
 
     const fetchFinalSummary = async () => {
       try {
-        const result = await getFinalSummary({ answers, insights, language });
+        const { ee, dp, rp } = computeScores(answers);
+
+        console.log("📡 Chiamata a getFinalSummary:", { answers, insights, ee, dp, rp });
+
+        const result = await getFinalSummary({
+          answers,
+          insights,
+          language,
+          ee,
+          dp,
+          rp,
+        });
+
         setSummary(result);
         localStorage.setItem(localKey, result);
 
@@ -33,7 +71,7 @@ const SummaryFeedback = ({ answers, insights }) => {
         });
       } catch (error) {
         console.error("❌ Errore nella chiamata getFinalSummary:", error);
-        setSummary("Errore nel caricamento del feedback.");
+        setSummary("");
 
         logFlow({
           component: "SummaryFeedback",
@@ -46,8 +84,6 @@ const SummaryFeedback = ({ answers, insights }) => {
       }
     };
 
-    const savedSummary = localStorage.getItem(localKey);
-
     if (savedSummary) {
       setSummary(savedSummary);
       setLoading(false);
@@ -58,20 +94,8 @@ const SummaryFeedback = ({ answers, insights }) => {
         data: savedSummary,
         level: "info",
       });
-    } else if (hasValidData) {
-      fetchFinalSummary();
     } else {
-      setLoading(false);
-
-      logFlow({
-        component: "SummaryFeedback",
-        action: "⏸️ Skip chiamata: dati incompleti o summary già presente",
-        data: {
-          answersLength: Object.keys(answers || {}).length,
-          insightsLength: insights?.length,
-        },
-        level: "trace",
-      });
+      fetchFinalSummary();
     }
   }, [answers, insights, language]);
 
@@ -99,7 +123,7 @@ const SummaryFeedback = ({ answers, insights }) => {
     es: "\"No tienes que estar al máximo cada día. Solo tienes que volver a empezar.\"",
   };
 
-  const shortText = summary.split(" ").slice(0, 35).join(" ") + "...";
+  const shortText = summary?.split(" ").slice(0, 35).join(" ") + "...";
 
   return (
     <div className="space-y-4 max-w-3xl text-base text-[#224344]">
@@ -118,7 +142,7 @@ const SummaryFeedback = ({ answers, insights }) => {
         <div className="relative bg-green-50 p-4 rounded-md border-l-4 border-green-500">
           {loading ? (
             <p className="italic text-sm text-gray-500">Generazione in corso...</p>
-          ) : summary.length > 0 ? (
+          ) : summary?.length > 0 ? (
             <>
               <p className="leading-relaxed">{expanded ? summary : shortText}</p>
               {summary.length > 50 && (

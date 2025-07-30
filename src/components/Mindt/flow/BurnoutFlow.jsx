@@ -65,9 +65,16 @@ const BurnoutFlow = ({ mode = 'short' }) => {
   if (currentStep + 1 < totalSteps) {
     setCurrentStep(currentStep + 1);
   } else {
-    navigate("/mindt-finale", {
-      state: { answers, insights, language }
-    });
+    localStorage.setItem("burnoutAnswers", JSON.stringify(
+  Object.entries(answers).map(([question, score]) => ({ question, score }))
+));
+localStorage.setItem("burnoutInsights", JSON.stringify(insights));
+navigate("/mindt-finale");
+    logFlow({
+      component: "BurnoutFlow",
+      action: "Test completato",
+      data: { answers, insights }
+    });   
   }
 };
 

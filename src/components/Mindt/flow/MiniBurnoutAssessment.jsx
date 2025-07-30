@@ -1,22 +1,26 @@
-// src/components/Mindt/flow/MiniBurnoutAssessment.jsx
 import React, { useState, useContext, useEffect } from "react";
 import { burnoutQuestionsShort as burnoutQuestions } from "./burnoutQuestionsShort";
 import { LanguageContext } from "../../../context/LanguageContext";
 import { logFlow } from "../../../utils/logFlow";
+import getRealtimeInsight from "./getRealtimeInsight";
 
 const MiniBurnoutAssessment = ({ onComplete }) => {
   const { language } = useContext(LanguageContext);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState([]);
+  const [insights, setInsights] = useState([]);
 
   const questions = ["EE1", "EE2", "DP1", "DP2", "RP1", "RP2"];
   const q = burnoutQuestions[language];
 
   useEffect(() => {
-    logFlow("MiniBurnoutAssessment", "Step iniziale", { currentIndex, question: questions[currentIndex] });
+    logFlow("MiniBurnoutAssessment", "Step iniziale", {
+      currentIndex,
+      question: questions[currentIndex],
+    });
   }, []);
 
-  const handleAnswer = (score) => {
+  const handleAnswer = async (score) => {
     const selectedQuestion = questions[currentIndex];
     const newAnswers = [...answers, { question: selectedQuestion, score }];
     setAnswers(newAnswers);
@@ -26,6 +30,15 @@ const MiniBurnoutAssessment = ({ onComplete }) => {
       score,
     });
 
+    // 🔁 Genera insight per la risposta attuale
+    const insightText = await getRealtimeInsight(
+      q[selectedQuestion],
+      q.options[score],
+      language
+    );
+    const newInsights = [...insights, insightText];
+    setInsights(newInsights);
+
     if (currentIndex + 1 < questions.length) {
       setCurrentIndex(currentIndex + 1);
       logFlow("MiniBurnoutAssessment", "Step avanzato", {
@@ -33,9 +46,13 @@ const MiniBurnoutAssessment = ({ onComplete }) => {
         nextQuestion: questions[currentIndex + 1],
       });
     } else {
-      // ✅ Fine: salva risposte in localStorage
+      // ✅ Fine: salva risposte e insight in localStorage
       localStorage.setItem("burnoutAnswers", JSON.stringify(newAnswers));
-      logFlow("MiniBurnoutAssessment", "Test completato", { answers: newAnswers });
+      localStorage.setItem("burnoutInsights", JSON.stringify(newInsights));
+      logFlow("MiniBurnoutAssessment", "Test completato", {
+        answers: newAnswers,
+        insights: newInsights,
+      });
       onComplete(newAnswers);
     }
   };

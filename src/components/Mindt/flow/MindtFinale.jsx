@@ -15,14 +15,22 @@ const MindtFinale = () => {
 
   useEffect(() => {
     try {
-      const storedAnswers = JSON.parse(localStorage.getItem("burnoutAnswers") || "{}");
+      const rawAnswers = JSON.parse(localStorage.getItem("burnoutAnswers") || "[]");
       const storedInsights = JSON.parse(localStorage.getItem("burnoutInsights") || "[]");
-      setAnswers(storedAnswers);
+
+      // 🔁 Converte array di oggetti in oggetto: { EE1: 2, EE2: 1, ... }
+      const formattedAnswers = rawAnswers.reduce((acc, cur) => {
+        acc[cur.question] = cur.score;
+        return acc;
+      }, {});
+
+      setAnswers(formattedAnswers);
       setInsights(storedInsights);
     } catch (error) {
       console.error("Errore parsing localStorage:", error);
     }
 
+    // 🎲 Elementi random grafici
     const snackImgs = [1, 2, 3, 4, 5, 6];
     const peopleImgs = [1, 2, 3, 4, 5, 6];
     setRandomSnack(`/Snacks/snack${snackImgs[Math.floor(Math.random() * snackImgs.length)]}.png`);
@@ -71,6 +79,7 @@ const MindtFinale = () => {
   const handleRestart = () => {
     localStorage.removeItem("burnoutAnswers");
     localStorage.removeItem("burnoutInsights");
+    localStorage.removeItem("mindtFinalSummary_it");
     navigate("/mindt");
   };
 
@@ -88,7 +97,7 @@ const MindtFinale = () => {
       {/* Logo */}
       <img src="/logo3.png" alt="Mindt Logo" className="absolute top-4 left-4 w-28 z-10" />
 
-      {/* Immagine decorativa spostata in basso a destra */}
+      {/* Immagine decorativa */}
       {randomPerson && (
         <img
           src={randomPerson}
@@ -103,7 +112,9 @@ const MindtFinale = () => {
         <div className="w-full lg:w-1/2 text-left space-y-6">
           <h1 className="text-4xl sm:text-5xl font-bold font-[Fredoka]">{t.title}</h1>
           <p className="text-md sm:text-lg">{t.subtitle}</p>
+
           <SummaryFeedback answers={answers} insights={insights} />
+
           <button
             onClick={handleRestart}
             className="text-sm text-blue-800 underline font-semibold mt-4"
