@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       Rispondi in ${language}.
       Domanda: ${question}
       Risposta dell'utente: ${answer}
-      Genera un breve insight empatico e motivazionale in massimo 10 parole.
+      Genera un breve insight empatico e motivazionale in massimo 15 parole.
     `;
 
     const completion = await openai.chat.completions.create({

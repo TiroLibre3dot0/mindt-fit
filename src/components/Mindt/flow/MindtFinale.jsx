@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LanguageSwitcher from "../../LanguageSwitcher";
 import SummaryFeedback from "./SummaryFeedback";
+import MentalBattery from "./MentalBattery";  
 import { useLanguage } from "../../../context/LanguageContext";
 
 const MindtFinale = () => {
@@ -134,6 +135,8 @@ const MindtFinale = () => {
             </span>
             <p className="text-sm font-normal mt-1">{t.createDesc}</p>
           </button>
+
+    
 
           <button
             onClick={() => navigate("/Shop")}
