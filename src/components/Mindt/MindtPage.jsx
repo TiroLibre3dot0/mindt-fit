@@ -83,7 +83,7 @@ const MindtPage = () => {
             src="/rightside3.png"
             alt="Wellness Illustration"
             className={`w-full h-auto object-contain transition-transform duration-700 ${
-              started ? "scale-90 translate-y-20" : "scale-100 translate-y-0"
+              started ? "scale-90 translate-y-40" : "scale-100 translate-y-0"
             }`}
           />
         </div>

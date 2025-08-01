@@ -1,157 +1,163 @@
+// MindtFinale.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import LanguageSwitcher from "../../LanguageSwitcher";
+import MentalBattery from "./MentalBattery";
 import SummaryFeedback from "./SummaryFeedback";
-import MentalBattery from "./MentalBattery";  
+import LanguageSwitcher from "../../LanguageSwitcher";
 import { useLanguage } from "../../../context/LanguageContext";
 
 const MindtFinale = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const [show, setShow] = useState(false);
   const [answers, setAnswers] = useState({});
   const [insights, setInsights] = useState([]);
-  const [randomSnack, setRandomSnack] = useState(null);
-  const [randomPerson, setRandomPerson] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    try {
-      const rawAnswers = JSON.parse(localStorage.getItem("burnoutAnswers") || "[]");
-      const storedInsights = JSON.parse(localStorage.getItem("burnoutInsights") || "[]");
+    const rawAnswers = JSON.parse(localStorage.getItem("burnoutAnswers") || "[]");
+    const storedInsights = JSON.parse(localStorage.getItem("burnoutInsights") || "[]");
 
-      // 🔁 Converte array di oggetti in oggetto: { EE1: 2, EE2: 1, ... }
-      const formattedAnswers = rawAnswers.reduce((acc, cur) => {
-        acc[cur.question] = cur.score;
-        return acc;
-      }, {});
+    const formattedAnswers = rawAnswers.reduce((acc, cur) => {
+      acc[cur.question] = cur.score;
+      return acc;
+    }, {});
 
-      setAnswers(formattedAnswers);
-      setInsights(storedInsights);
-    } catch (error) {
-      console.error("Errore parsing localStorage:", error);
-    }
+    setAnswers(formattedAnswers);
+    setInsights(storedInsights);
 
-    // 🎲 Elementi random grafici
-    const snackImgs = [1, 2, 3, 4, 5, 6];
-    const peopleImgs = [1, 2, 3, 4, 5, 6];
-    setRandomSnack(`/Snacks/snack${snackImgs[Math.floor(Math.random() * snackImgs.length)]}.png`);
-    setRandomPerson(`/Snackspeople/snackpeople${peopleImgs[Math.floor(Math.random() * peopleImgs.length)]}.png`);
+    setTimeout(() => setLoading(false), 1500);
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => setShow(true), 100);
-  }, []);
-
-  const translations = {
+  const t = {
     it: {
-      title: "Il tuo percorso inizia da qui",
-      subtitle: "Hai appena fatto il primo passo per ritrovare energia e benessere. 👏",
-      create: "✨ Crea il tuo profilo Mindt",
-      createDesc: "Inizia il tuo percorso personalizzato di benessere mentale e fisico.",
-      explore: "Scopri gli snack funzionali",
-      exploreDesc: "Focus, energia, relax: scegli quello giusto per te.",
-      quote: "“Prendersi cura della propria mente è il primo passo per diventare inarrestabile.”",
-      restart: "🔁 Rifai il test",
+      title: "Complimenti!",
+      subtitle: "Hai appena concluso il primo passo.",
+      keywords: ["nuova consapevolezza", "energia mentale", "equilibrio personale"],
+      heading: "Ora inizia il tuo percorso",
+      desc: "Ogni cambiamento inizia dalla consapevolezza. Scopri come migliorare il tuo stato mentale giorno dopo giorno.",
+      cta: "Crea il tuo profilo personale",
+      expand: "\ud83d\udcc4 Leggi il riepilogo completo",
+      collapse: "\ud83d\udd19 Nascondi riepilogo",
+      loading: "\ud83e\udde0 L’AI sta generando il tuo profilo mentale...",
     },
     en: {
-      title: "Your journey starts here",
-      subtitle: "You've just taken the first step to regain energy and wellness. 👏",
-      create: "✨ Create your Mindt profile",
-      createDesc: "Start your personalized mental and physical wellness journey.",
-      explore: "Discover functional snacks",
-      exploreDesc: "Focus, energy, relaxation: choose what fits you best.",
-      quote: "“Taking care of your mind is the first step to becoming unstoppable.”",
-      restart: "🔁 Restart the test",
+      title: "Congratulations!",
+      subtitle: "You've just completed the first step.",
+      keywords: ["new awareness", "mental energy", "personal balance"],
+      heading: "Now your journey begins",
+      desc: "Every change starts with awareness. Discover how to improve your mental state day by day.",
+      cta: "Create your personal profile",
+      expand: "\ud83d\udcc4 Read the full summary",
+      collapse: "\ud83d\udd19 Hide summary",
+      loading: "\ud83e\udde0 AI is generating your mental profile...",
     },
-    es: {
-      title: "Tu camino comienza aquí",
-      subtitle: "Acabas de dar el primer paso para recuperar energía y bienestar. 👏",
-      create: "✨ Crea tu perfil Mindt",
-      createDesc: "Comienza tu camino personalizado hacia el bienestar mental y físico.",
-      explore: "Descubre los snacks funcionales",
-      exploreDesc: "Enfoque, energía, relax: elige el adecuado para ti.",
-      quote: "“Cuidar tu mente es el primer paso para volverte imparable.”",
-      restart: "🔁 Repite el test",
-    },
+  }[language || "it"];
+
+  const getBurnoutLevel = () => {
+    const EE = (answers["EE1"] || 0) + (answers["EE2"] || 0);
+    const DP = (answers["DP1"] || 0) + (answers["DP2"] || 0);
+    const RP = (answers["RP1"] || 0) + (answers["RP2"] || 0);
+    if (EE >= 6 && (DP >= 4 || RP <= 3)) return "high";
+    if (EE >= 4 || DP >= 3 || RP <= 4) return "moderate";
+    return "low";
   };
 
-  const t = translations[language] || translations.it;
+  const burnoutLevel = getBurnoutLevel();
 
-  const handleRestart = () => {
-    localStorage.removeItem("burnoutAnswers");
-    localStorage.removeItem("burnoutInsights");
-    localStorage.removeItem("mindtFinalSummary_it");
-    navigate("/mindt");
+  const colorMap = {
+    high: "#f28574",
+    moderate: "#ffb347",
+    low: "#8fe388",
   };
+
+  const ctaColor = colorMap[burnoutLevel] || "#f28574";
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#224344] text-white flex items-center justify-center text-lg animate-pulse">
+        {t.loading}
+      </div>
+    );
+  }
 
   return (
-    <div
-      className={`min-h-screen w-full flex items-center justify-center transition-all duration-1000 ease-in-out ${
-        show ? "bg-[#ffccc9]" : "bg-[#224344]"
-      } relative overflow-hidden font-sans`}
-    >
-      {/* Language switcher */}
+    <div className="min-h-screen bg-[#224344] text-white flex flex-col-reverse md:flex-row relative">
+      {/* LOGO + LINGUA */}
+      <div className="absolute top-4 left-4 z-10">
+        <img
+          src="/logo3.png"
+          alt="Mindt Logo"
+          className="h-8 md:h-10 cursor-pointer"
+          onClick={() => navigate("/mindt")}
+        />
+      </div>
       <div className="absolute top-4 right-4 z-10">
         <LanguageSwitcher showLabel={false} />
       </div>
 
-      {/* Logo */}
-      <img src="/logo3.png" alt="Mindt Logo" className="absolute top-4 left-4 w-28 z-10" />
+      {/* COLONNA SINISTRA (testo) */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-4 py-10 sm:px-8 md:p-16 space-y-4">
+        <div className="block md:hidden flex flex-col items-center justify-center mt-8 mb-4 space-y-2">
+  <div className="scale-[1.4]">
+    <MentalBattery burnoutLevel={burnoutLevel} />
+  </div>
+  <p className="text-sm text-center text-white opacity-80 max-w-[240px] leading-tight">
+    {t.desc}
+  </p>
+</div>
 
-      {/* Immagine decorativa */}
-      {randomPerson && (
-        <img
-          src={randomPerson}
-          alt="Snack person"
-          className="absolute bottom-0 right-0 w-40 sm:w-56 opacity-90 animate-fade-in"
-        />
-      )}
+        <h2 className="text-xl md:text-2xl font-semibold font-[Fredoka] text-white">
+          {t.title} <span className="text-orange-300 font-bold">Mindt</span>
+        </h2>
+        <p className="text-md md:text-lg italic text-center">{t.subtitle}</p>
 
-      {/* Contenuto principale */}
-      <div className="flex flex-col lg:flex-row items-center justify-between gap-10 text-[#224344] px-6 py-12 max-w-7xl w-full z-10">
-        {/* Colonna sinistra */}
-        <div className="w-full lg:w-1/2 text-left space-y-6">
-          <h1 className="text-4xl sm:text-5xl font-bold font-[Fredoka]">{t.title}</h1>
-          <p className="text-md sm:text-lg">{t.subtitle}</p>
-
-          <SummaryFeedback answers={answers} insights={insights} />
-
-          <button
-            onClick={handleRestart}
-            className="text-sm text-blue-800 underline font-semibold mt-4"
-          >
-            {t.restart}
-          </button>
-        </div>
-
-        {/* Colonna destra */}
-        <div className="w-full lg:w-1/2 flex flex-col items-center gap-6">
-          <button
-            onClick={() => navigate("/mindt-register")}
-            className="w-full max-w-sm bg-gradient-to-r from-orange-400 to-orange-500 hover:scale-105 text-white text-lg font-semibold py-4 px-6 rounded-full shadow-lg transition-all duration-300 flex flex-col items-center group"
-          >
-            <span className="flex items-center gap-2">
-              <span className="animate-pulse group-hover:animate-shake">✨</span> {t.create}
+        <div className="flex flex-wrap gap-2 justify-center text-sm">
+          {t.keywords.map((kw, i) => (
+            <span
+              key={i}
+              className="bg-orange-400/80 text-[#224344] px-3 py-1 rounded-xl font-semibold text-xs"
+            >
+              {kw}
             </span>
-            <p className="text-sm font-normal mt-1">{t.createDesc}</p>
-          </button>
-
-    
-
-          <button
-            onClick={() => navigate("/Shop")}
-            className="w-full max-w-sm bg-white text-[#224344] border-2 border-[#224344] hover:scale-105 text-lg font-semibold py-4 px-6 rounded-full shadow-md transition-all duration-300 flex flex-col items-center"
-          >
-            <span className="flex items-center gap-2">🧠 {t.explore}</span>
-            <p className="text-sm font-normal mt-1">{t.exploreDesc}</p>
-          </button>
+          ))}
         </div>
+
+        <h1 className="text-3xl md:text-4xl font-bold font-[Fredoka] mt-6 text-center">
+          {t.heading}
+        </h1>
+        <p className="text-md md:text-lg text-center max-w-md">{t.desc}</p>
+
+        {/* CTA */}
+        <button
+          onClick={() => navigate("/mindt-register")}
+          className={`mt-6 text-[#224344] font-semibold py-3 px-6 rounded-full shadow-lg text-sm transition-all`}
+          style={{ backgroundColor: ctaColor }}
+        >
+          {t.cta}
+        </button>
       </div>
 
-      {/* Citazione finale */}
-      <div className="absolute bottom-4 right-6 text-sm italic text-[#224344] opacity-80">
-        {t.quote}
-      </div>
+      {/* COLONNA DESTRA (batteria visibile solo da md in su) */}
+<div className="w-full md:w-1/2 flex items-center justify-center relative px-4 pb-10 hidden md:flex">
+  <div
+    className="cursor-pointer transition-transform duration-300 hover:scale-105"
+    onClick={() => setExpanded(true)}
+  >
+    <div className="w-[200px] md:w-[260px] lg:w-[320px]">
+      <MentalBattery burnoutLevel={burnoutLevel} />
+    </div>
+  </div>
+</div>
+
+{/* OUTSIDE: MODAL always mounted but conditionally shown */}
+<SummaryFeedback
+  show={!!expanded}
+  onClose={() => setExpanded(false)}
+  answers={answers}
+  insights={insights}
+  burnoutLevel={burnoutLevel}
+/>
     </div>
   );
 };

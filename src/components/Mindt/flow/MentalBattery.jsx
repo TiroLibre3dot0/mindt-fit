@@ -1,10 +1,21 @@
-// src/components/Mindt/MentalBattery.jsx
 import React from "react";
-import { FaBatteryFull, FaBatteryHalf, FaBatteryEmpty } from "react-icons/fa6";
 import { useLanguage } from "../../../context/LanguageContext";
+import clsx from "clsx";
 
-const getBatteryStatus = (burnoutLevel, language) => {
-  const translations = {
+const getBatteryLevel = (burnoutLevel) => {
+  switch (burnoutLevel) {
+    case "high":
+      return 1;
+    case "moderate":
+      return 3;
+    case "low":
+    default:
+      return 5;
+  }
+};
+
+const getLabel = (level, language) => {
+  const labels = {
     it: {
       high: "Batteria mentale scarica",
       moderate: "Batteria mentale a metà",
@@ -21,38 +32,62 @@ const getBatteryStatus = (burnoutLevel, language) => {
       low: "Batería mental llena",
     },
   };
-
-  const labels = translations[language] || translations.it;
-
-  if (burnoutLevel === "high") {
-    return {
-      icon: <FaBatteryEmpty className="text-red-500 animate-pulse" size={40} />,
-      label: labels.high,
-      color: "text-red-600",
-    };
-  }
-  if (burnoutLevel === "moderate") {
-    return {
-      icon: <FaBatteryHalf className="text-yellow-500" size={40} />,
-      label: labels.moderate,
-      color: "text-yellow-600",
-    };
-  }
-  return {
-    icon: <FaBatteryFull className="text-green-500" size={40} />,
-    label: labels.low,
-    color: "text-green-600",
-  };
+  return labels[language]?.[level] || labels.it[level];
 };
 
 const MentalBattery = ({ burnoutLevel }) => {
   const { language } = useLanguage();
-  const { icon, label, color } = getBatteryStatus(burnoutLevel, language);
+  const level = getBatteryLevel(burnoutLevel);
+  const label = getLabel(burnoutLevel, language);
 
   return (
-    <div className="flex flex-col items-center mb-6 animate-fade-in">
-      <div className="mb-1">{icon}</div>
-      <p className={`text-sm font-medium ${color}`}>{label}</p>
+    <div className="flex flex-col items-center animate-fade-in transition-all duration-500 cursor-pointer hover:scale-105">
+      {/* Battery container */}
+      <div className="relative flex items-center">
+        <div className="w-[160px] h-[60px] bg-white rounded-lg flex items-center justify-start p-1 gap-[6px] border-2 border-gray-300 shadow-md transition-all">
+          {[...Array(5)].map((_, i) => {
+            const isActive = i < level;
+            const isLastPulse =
+              (burnoutLevel === "low" && i === 4) ||
+              (burnoutLevel === "moderate" && i === 2) ||
+              (burnoutLevel === "high" && i === 0);
+
+            return (
+              <div
+                key={i}
+                className={clsx(
+                  "w-[20px] h-[40px] rounded-sm transition-all duration-500",
+                  {
+                    // Green (Low)
+                    "bg-green-500": isActive && burnoutLevel === "low",
+                    "animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]":
+                      isLastPulse && burnoutLevel === "low",
+
+                    // Yellow (Moderate)
+                    "bg-yellow-400": isActive && burnoutLevel === "moderate",
+                    "animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.6)]":
+                      isLastPulse && burnoutLevel === "moderate",
+
+                    // Red (High)
+                    "bg-red-500": isActive && burnoutLevel === "high",
+                    "animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]":
+                      isLastPulse && burnoutLevel === "high",
+
+                    // Inactive
+                    "bg-gray-200": !isActive,
+                  }
+                )}
+              />
+            );
+          })}
+        </div>
+
+        {/* Battery tip */}
+        <div className="w-[12px] h-[28px] bg-gray-300 rounded-r ml-1" />
+      </div>
+
+      {/* Label */}
+      <p className="text-sm mt-2 text-white font-semibold text-center">{label}</p>
     </div>
   );
 };
