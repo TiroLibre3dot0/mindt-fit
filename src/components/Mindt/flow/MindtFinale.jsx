@@ -99,13 +99,17 @@ const MindtFinale = () => {
       {/* COLONNA SINISTRA (testo) */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-4 py-10 sm:px-8 md:p-16 space-y-4">
         <div className="block md:hidden flex flex-col items-center justify-center mt-8 mb-4 space-y-2">
-  <div className="scale-[1.4]">
+  <button
+    onClick={() => setExpanded(true)}
+    className="scale-[1.4] active:scale-95 transition-transform"
+  >
     <MentalBattery burnoutLevel={burnoutLevel} />
-  </div>
+  </button>
   <p className="text-sm text-center text-white opacity-80 max-w-[240px] leading-tight">
     {t.desc}
   </p>
 </div>
+
 
         <h2 className="text-xl md:text-2xl font-semibold font-[Fredoka] text-white">
           {t.title} <span className="text-orange-300 font-bold">Mindt</span>
