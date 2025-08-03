@@ -10,7 +10,9 @@ import DepersonalizationQuestions from './DepersonalizationQuestions';
 import PersonalAchievementQuestions from './PersonalAchievementQuestions';
 import { logFlow } from '../../../utils/logFlow';
 
-const BurnoutFlow = ({ mode = 'short', onInsightChange, onNextQuestion }) => {
+const questionKeys = ['EE1', 'EE2', 'DP1', 'DP2', 'RP1', 'RP2'];
+
+const BurnoutFlow = ({ mode = 'short', onInsightChange, onNextQuestion, highlightColors }) => {
   const { language } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -18,7 +20,7 @@ const BurnoutFlow = ({ mode = 'short', onInsightChange, onNextQuestion }) => {
   const [loadingInsight, setLoadingInsight] = useState(false);
 
   const navigate = useNavigate();
-  const totalSteps = mode === 'short' ? 6 : 3;
+  const totalSteps = mode === 'short' ? questionKeys.length : 3;
 
   useEffect(() => {
     logFlow("BurnoutFlow", "Inizio flusso", { mode, language, step: currentStep });
@@ -64,7 +66,7 @@ const BurnoutFlow = ({ mode = 'short', onInsightChange, onNextQuestion }) => {
       data: { currentStep }
     });
 
-    if (onNextQuestion) onNextQuestion(); // 👈 RIGA AGGIUNTA
+    if (onNextQuestion) onNextQuestion();
 
     if (currentStep + 1 < totalSteps) {
       setCurrentStep(currentStep + 1);
@@ -104,6 +106,7 @@ const BurnoutFlow = ({ mode = 'short', onInsightChange, onNextQuestion }) => {
           questions={burnoutQuestionsShort[language]}
           answers={answers}
           onAnswer={handleAnswer}
+          highlightColors={highlightColors}
         />
       )}
 
@@ -134,8 +137,8 @@ const BurnoutFlow = ({ mode = 'short', onInsightChange, onNextQuestion }) => {
         <StepNavigation
           onNext={handleNext}
           onBack={handleBack}
-          isLast={currentStep + 1 === totalSteps}
-          isNextEnabled={!!answers[questionKeys[currentStep]]}
+          isLast={currentStep === totalSteps - 1}
+          highlightColors={highlightColors}
         />
       </div>
     </div>
@@ -144,9 +147,7 @@ const BurnoutFlow = ({ mode = 'short', onInsightChange, onNextQuestion }) => {
 
 export default BurnoutFlow;
 
-const questionKeys = ['EE1', 'EE2', 'DP1', 'DP2', 'RP1', 'RP2'];
-
-const QuestionShortStep = ({ step, questions, answers, onAnswer }) => {
+const QuestionShortStep = ({ step, questions, answers, onAnswer, highlightColors }) => {
   const key = questionKeys[step];
   const label = questions[key];
   const options = questions.options;
@@ -158,8 +159,8 @@ const QuestionShortStep = ({ step, questions, answers, onAnswer }) => {
     <div className="space-y-8 text-center text-white">
       <div className="w-full max-w-md mx-auto h-2 bg-zinc-600 rounded-full overflow-hidden">
         <div
-          className="h-full bg-[#ee7a4d] transition-all duration-300"
-          style={{ width: `${progress}%` }}
+          className="h-full transition-all duration-300"
+          style={{ width: `${progress}%`, backgroundColor: highlightColors.color }}
         />
       </div>
 
@@ -176,8 +177,8 @@ const QuestionShortStep = ({ step, questions, answers, onAnswer }) => {
               onClick={() => onAnswer(key, idx, label)}
               className={`px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 border-2 ${
                 isSelected
-                  ? "bg-white text-[#224344] border-[#ee7a4d]"
-                  : "bg-transparent text-white border-white hover:bg-white hover:text-[#224344] hover:border-[#ee7a4d]"
+                  ? `bg-white text-[#224344] border-[${highlightColors.color}]`
+                  : `bg-transparent text-white border-white hover:bg-white hover:text-[#224344] hover:border-[${highlightColors.color}]`
               }`}
             >
               {opt}

@@ -1,7 +1,10 @@
-// src/components/Mindt/flow/StepNavigation.jsx
 import React from "react";
 
-const StepNavigation = ({ onNext, onBack, isLast }) => {
+const StepNavigation = ({ onNext, onBack, isLast, highlightColors }) => {
+  const bg = highlightColors?.color || "#ee7a4d";
+  const hover = highlightColors?.hover || "#e76a3c";
+  const text = "#224344";
+
   return (
     <div className="flex justify-between items-center max-w-md mx-auto mt-10">
       <button
@@ -12,7 +15,10 @@ const StepNavigation = ({ onNext, onBack, isLast }) => {
       </button>
       <button
         onClick={onNext}
-        className="px-5 py-2 text-sm font-semibold rounded-md bg-[#ee7a4d] text-white hover:bg-[#e76a3c] transition"
+        style={{ backgroundColor: bg }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = hover}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = bg}
+        className="px-5 py-2 text-sm font-semibold rounded-md text-white transition"
       >
         {isLast ? "Vedi Risultato" : "Avanti →"}
       </button>

@@ -1,21 +1,39 @@
-// src/components/LanguageSwitcher.jsx
 import { useLanguage } from "../context/LanguageContext";
+import { useState } from "react";
+import Flag from "react-world-flags";
 
-const LanguageSwitcher = ({ showLabel = true }) => {
+const LanguageSwitcher = () => {
   const { language, setLanguage } = useLanguage();
+  const [open, setOpen] = useState(false);
+
+  const availableLangs = ["it", "en", "es"];
 
   return (
-    <div className="flex gap-2 items-center">
-      {showLabel && <label className="text-sm text-gray-300">🌍</label>}
-      <select
-        value={language}
-        onChange={(e) => setLanguage(e.target.value)}
-        className="bg-zinc-700 text-white px-2 py-1 rounded"
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1 bg-transparent text-white focus:outline-none"
       >
-        <option value="it">🇮🇹 Italiano</option>
-        <option value="en">🇺🇸 English</option>
-        <option value="es">🇪🇸 Español</option>
-      </select>
+        <Flag code={language} style={{ width: 20, height: 14, borderRadius: 2 }} />
+        <span className="text-sm">▼</span>
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-2 bg-white text-black rounded shadow z-50">
+          {availableLangs.map((lang) => (
+            <button
+              key={lang}
+              onClick={() => {
+                setLanguage(lang);
+                setOpen(false);
+              }}
+              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 w-full text-left"
+            >
+              <Flag code={lang} style={{ width: 20, height: 14, borderRadius: 2 }} />
+              {lang.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

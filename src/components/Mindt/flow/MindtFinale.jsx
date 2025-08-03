@@ -1,10 +1,12 @@
-// MindtFinale.jsx
+// src/components/Mindt/pages/MindtFinale.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import NavbarMindt from "../NavbarMindt";
 import MentalBattery from "./MentalBattery";
 import SummaryFeedback from "./SummaryFeedback";
-import LanguageSwitcher from "../../LanguageSwitcher";
 import { useLanguage } from "../../../context/LanguageContext";
+import { getColorPalette } from "../../../utils/burnoutColors";
+
 
 const MindtFinale = () => {
   const navigate = useNavigate();
@@ -37,9 +39,9 @@ const MindtFinale = () => {
       heading: "Ora inizia il tuo percorso",
       desc: "Ogni cambiamento inizia dalla consapevolezza. Scopri come migliorare il tuo stato mentale giorno dopo giorno.",
       cta: "Crea il tuo profilo personale",
-      expand: "\ud83d\udcc4 Leggi il riepilogo completo",
-      collapse: "\ud83d\udd19 Nascondi riepilogo",
-      loading: "\ud83e\udde0 L’AI sta generando il tuo profilo mentale...",
+      expand: "📄 Leggi il riepilogo completo",
+      collapse: "🔙 Nascondi riepilogo",
+      loading: "🧠 L’AI sta generando il tuo profilo mentale...",
     },
     en: {
       title: "Congratulations!",
@@ -48,9 +50,9 @@ const MindtFinale = () => {
       heading: "Now your journey begins",
       desc: "Every change starts with awareness. Discover how to improve your mental state day by day.",
       cta: "Create your personal profile",
-      expand: "\ud83d\udcc4 Read the full summary",
-      collapse: "\ud83d\udd19 Hide summary",
-      loading: "\ud83e\udde0 AI is generating your mental profile...",
+      expand: "📄 Read the full summary",
+      collapse: "🔙 Hide summary",
+      loading: "🧠 AI is generating your mental profile...",
     },
   }[language || "it"];
 
@@ -65,13 +67,7 @@ const MindtFinale = () => {
 
   const burnoutLevel = getBurnoutLevel();
 
-  const colorMap = {
-    high: "#f28574",
-    moderate: "#ffb347",
-    low: "#8fe388",
-  };
-
-  const ctaColor = colorMap[burnoutLevel] || "#f28574";
+  const palette = getColorPalette(burnoutLevel);
 
   if (loading) {
     return (
@@ -83,33 +79,24 @@ const MindtFinale = () => {
 
   return (
     <div className="min-h-screen bg-[#224344] text-white flex flex-col-reverse md:flex-row relative">
-      {/* LOGO + LINGUA */}
-      <div className="absolute top-4 left-4 z-10">
-        <img
-          src="/logo3.png"
-          alt="Mindt Logo"
-          className="h-8 md:h-10 cursor-pointer"
-          onClick={() => navigate("/mindt")}
-        />
-      </div>
-      <div className="absolute top-4 right-4 z-10">
-        <LanguageSwitcher showLabel={false} />
+      {/* ✅ Navbar centrata con palette burnout */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50">
+        <NavbarMindt highlightColors={{ color: palette.main, hover: palette.light }} />
       </div>
 
-      {/* COLONNA SINISTRA (testo) */}
+      {/* COLONNA SINISTRA */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-4 py-10 sm:px-8 md:p-16 space-y-4">
         <div className="block md:hidden flex flex-col items-center justify-center mt-8 mb-4 space-y-2">
-  <button
-    onClick={() => setExpanded(true)}
-    className="scale-[1.4] active:scale-95 transition-transform"
-  >
-    <MentalBattery burnoutLevel={burnoutLevel} />
-  </button>
-  <p className="text-sm text-center text-white opacity-80 max-w-[240px] leading-tight">
-    {t.desc}
-  </p>
-</div>
-
+          <button
+            onClick={() => setExpanded(true)}
+            className="scale-[1.4] active:scale-95 transition-transform"
+          >
+            <MentalBattery burnoutLevel={burnoutLevel} />
+          </button>
+          <p className="text-sm text-center text-white opacity-80 max-w-[240px] leading-tight">
+            {t.desc}
+          </p>
+        </div>
 
         <h2 className="text-xl md:text-2xl font-semibold font-[Fredoka] text-white">
           {t.title} <span className="text-orange-300 font-bold">Mindt</span>
@@ -132,36 +119,38 @@ const MindtFinale = () => {
         </h1>
         <p className="text-md md:text-lg text-center max-w-md">{t.desc}</p>
 
-        {/* CTA */}
+        {/* ✅ CTA con colore burnout */}
         <button
           onClick={() => navigate("/mindt-register")}
-          className={`mt-6 text-[#224344] font-semibold py-3 px-6 rounded-full shadow-lg text-sm transition-all`}
-          style={{ backgroundColor: ctaColor }}
+          className="mt-6 font-semibold py-3 px-6 rounded-full shadow-lg text-sm transition-all"
+          style={{
+            backgroundColor: palette.main,
+            color: palette.light,
+          }}
         >
           {t.cta}
         </button>
       </div>
 
-      {/* COLONNA DESTRA (batteria visibile solo da md in su) */}
-<div className="w-full md:w-1/2 flex items-center justify-center relative px-4 pb-10 hidden md:flex">
-  <div
-    className="cursor-pointer transition-transform duration-300 hover:scale-105"
-    onClick={() => setExpanded(true)}
-  >
-    <div className="w-[200px] md:w-[260px] lg:w-[320px]">
-      <MentalBattery burnoutLevel={burnoutLevel} />
-    </div>
-  </div>
-</div>
+      {/* COLONNA DESTRA */}
+      <div className="w-full md:w-1/2 flex items-center justify-center relative px-4 pb-10 hidden md:flex">
+        <div
+          className="cursor-pointer transition-transform duration-300 hover:scale-105"
+          onClick={() => setExpanded(true)}
+        >
+          <div className="w-[200px] md:w-[260px] lg:w-[320px]">
+            <MentalBattery burnoutLevel={burnoutLevel} />
+          </div>
+        </div>
+      </div>
 
-{/* OUTSIDE: MODAL always mounted but conditionally shown */}
-<SummaryFeedback
-  show={!!expanded}
-  onClose={() => setExpanded(false)}
-  answers={answers}
-  insights={insights}
-  burnoutLevel={burnoutLevel}
-/>
+      <SummaryFeedback
+        show={!!expanded}
+        onClose={() => setExpanded(false)}
+        answers={answers}
+        insights={insights}
+        burnoutLevel={burnoutLevel}
+      />
     </div>
   );
 };

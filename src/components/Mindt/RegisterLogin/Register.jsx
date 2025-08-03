@@ -1,4 +1,3 @@
-// src/components/Mindt/RegisterLogin/Register.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthInput from "./AuthInput";
@@ -12,10 +11,18 @@ import { getAuth } from "firebase/auth";
 import { saveUserProfile } from "./firestoreService";
 import { useLanguage } from "../../../context/LanguageContext";
 
+// Nuovi import
+import { useBurnout } from "../../../context/BurnoutContext";
+import { getColorPalette } from "../../../utils/burnoutColors";
+import NavbarMindt from "../NavbarMindt";
+import MentalBattery from "../flow/MentalBattery";
+
 const Register = () => {
   const navigate = useNavigate();
   const { registerUser, loginWithGoogleAccount } = useAuth();
   const { language } = useLanguage();
+  const { burnoutLevel } = useBurnout();
+  const palette = getColorPalette(burnoutLevel);
 
   const translations = {
     it: {
@@ -102,60 +109,88 @@ const Register = () => {
   };
 
   return (
-    <RegisterLoginWrapper>
-      <form onSubmit={handleRegister} className="flex flex-col gap-3">
-        <h2 className="text-2xl font-bold text-white text-center mb-2">{t.title}</h2>
+    <div
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{
+        background: `linear-gradient(to bottom, ${palette.main}, ${palette.light})`,
+      }}
+    >
+      {/* Navbar */}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50">
+              <NavbarMindt
+                activeId="signin"
+                highlightColors={{ color: palette.main, hover: palette.light }}
+              />
+            </div>
 
-        <AuthInput
-          type="text"
-          name="name"
-          placeholder={t.name}
-          value={form.name}
-          onChange={handleChange}
-        />
-        <AuthInput
-          type="text"
-          name="surname"
-          placeholder={t.surname}
-          value={form.surname}
-          onChange={handleChange}
-        />
-        <AuthInput
-          type="email"
-          name="email"
-          placeholder={t.email}
-          value={form.email}
-          onChange={handleChange}
-        />
-        <AuthInput
-          type="password"
-          name="password"
-          placeholder={t.password}
-          value={form.password}
-          onChange={handleChange}
-        />
-        <AuthInput
-          type="password"
-          name="confirmPassword"
-          placeholder={t.confirmPassword}
-          value={form.confirmPassword}
-          onChange={handleChange}
-        />
+      {/* Mental Battery */}
+      <div className="absolute top-4 right-4 scale-[0.7] sm:scale-90 z-50">
+        <MentalBattery burnoutLevel={burnoutLevel} />
+      </div>
 
-        <AuthButton text={t.register} className="bg-[#f17b4e] hover:bg-[#e56733]" />
+      {/* Register Form */}
+      <RegisterLoginWrapper>
+        <form onSubmit={handleRegister} className="flex flex-col gap-3">
+          <h2 className="text-2xl font-bold text-white text-center mb-2">{t.title}</h2>
 
-        <button
-          type="button"
-          onClick={handleGoogleRegister}
-          className="w-full flex items-center justify-center gap-3 border border-white/30 bg-white/10 text-white py-3 rounded-xl hover:bg-white/20 transition"
-        >
-          <FcGoogle size={20} />
-          <span className="text-sm font-medium">{t.google}</span>
-        </button>
+          <AuthInput
+            type="text"
+            name="name"
+            placeholder={t.name}
+            value={form.name}
+            onChange={handleChange}
+          />
+          <AuthInput
+            type="text"
+            name="surname"
+            placeholder={t.surname}
+            value={form.surname}
+            onChange={handleChange}
+          />
+          <AuthInput
+            type="email"
+            name="email"
+            placeholder={t.email}
+            value={form.email}
+            onChange={handleChange}
+          />
+          <AuthInput
+            type="password"
+            name="password"
+            placeholder={t.password}
+            value={form.password}
+            onChange={handleChange}
+          />
+          <AuthInput
+            type="password"
+            name="confirmPassword"
+            placeholder={t.confirmPassword}
+            value={form.confirmPassword}
+            onChange={handleChange}
+          />
 
-        <ToggleAuthMode text={t.already} linkText={t.login} to="/mindt-login" />
-      </form>
-    </RegisterLoginWrapper>
+          <AuthButton
+            text={t.register}
+            className="bg-[#f17b4e] hover:bg-[#e56733]"
+          />
+
+          <button
+            type="button"
+            onClick={handleGoogleRegister}
+            className="w-full flex items-center justify-center gap-3 border border-white/30 bg-white/10 text-white py-3 rounded-xl hover:bg-white/20 transition"
+          >
+            <FcGoogle size={20} />
+            <span className="text-sm font-medium">{t.google}</span>
+          </button>
+
+          <ToggleAuthMode
+            text={t.already}
+            linkText={t.login}
+            to="/mindt-login"
+          />
+        </form>
+      </RegisterLoginWrapper>
+    </div>
   );
 };
 

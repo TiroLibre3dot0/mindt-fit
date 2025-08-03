@@ -5,31 +5,7 @@ import { Dialog } from "@headlessui/react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { FaBrain, FaChartBar, FaCandyCane } from "react-icons/fa";
-
-// ✅ Palette colori stato burnout
-const getColorPalette = (level) => {
-  switch (level) {
-    case "low":
-      return {
-        main: "#2f9e44",
-        light: "#e6f4ea",
-        text: "#1b7030"
-      };
-    case "moderate":
-      return {
-        main: "#e67700",
-        light: "#fff9e6",
-        text: "#b35b00"
-      };
-    case "high":
-    default:
-      return {
-        main: "#c92a2a",
-        light: "#fff1f0",
-        text: "#8e1d1d"
-      };
-  }
-};
+import { getColorPalette } from "../../../utils/burnoutColors";
 
 const SummaryFeedback = ({ answers, insights, show, onClose, burnoutLevel }) => {
   const { language } = useLanguage();

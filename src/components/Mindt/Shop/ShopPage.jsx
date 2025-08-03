@@ -1,7 +1,10 @@
 // src/components/Mindt/Shop/ShopPage.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../../context/LanguageContext";
-import LanguageSwitcher from "../../LanguageSwitcher";
+import { useBurnout } from "../../../context/BurnoutContext";
+import { getColorPalette } from "../../../utils/burnoutColors";
+import NavbarMindt from "../NavbarMindt";
+import MentalBattery from "../flow/MentalBattery";
 
 const translations = {
   addToCart: {
@@ -140,17 +143,21 @@ const snacks = [
 
 const ShopPage = () => {
   const { language } = useLanguage();
+  const { burnoutLevel } = useBurnout();
+  const palette = getColorPalette(burnoutLevel);
   const [selectedSnack, setSelectedSnack] = useState(snacks[0]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white overflow-x-hidden">
-      {/* Header */}
-      <div className="flex justify-between items-center px-6 pt-4">
-        <img src="/logo3.png" alt="Mindt Logo" className="h-10" />
-        <LanguageSwitcher />
+    <div className="min-h-screen text-white overflow-x-hidden" style={{ background: `linear-gradient(to bottom, ${palette.main}, ${palette.light})` }}>
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50">
+        <NavbarMindt activeId="shop" 
+         highlightColors={{ color: palette.main, hover: palette.light }} />
       </div>
 
-      {/* Sezione Prodotto selezionato */}
+      <div className="absolute top-4 right-4 scale-[0.7] sm:scale-90 z-50">
+        <MentalBattery burnoutLevel={burnoutLevel} />
+      </div>
+
       <div className="flex flex-col md:flex-row items-center justify-center gap-10 px-6 py-16 max-w-6xl mx-auto">
         <div className="relative flex-shrink-0">
           <div className="absolute w-[300px] h-[300px] rounded-full bg-yellow-400 opacity-10 blur-3xl" />
@@ -195,7 +202,6 @@ const ShopPage = () => {
         </div>
       </div>
 
-      {/* Carosello snack */}
       <div className="flex flex-wrap justify-center gap-6 px-4 pb-20">
         {snacks.map((snack) => (
           <div

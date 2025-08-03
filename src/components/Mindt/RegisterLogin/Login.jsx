@@ -1,4 +1,3 @@
-// src/components/Mindt/RegisterLogin/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthInput from "./AuthInput";
@@ -12,10 +11,18 @@ import { updateLastLogin } from "./firestoreService";
 import { getAuth } from "firebase/auth";
 import { useLanguage } from "../../../context/LanguageContext";
 
+// Nuovi import per burnout context e componenti grafici
+import { useBurnout } from "../../../context/BurnoutContext";
+import { getColorPalette } from "../../../utils/burnoutColors";
+import NavbarMindt from "../NavbarMindt";
+import MentalBattery from "../flow/MentalBattery";
+
 const Login = () => {
   const navigate = useNavigate();
   const { loginUser, loginWithGoogleAccount } = useAuth();
   const { language } = useLanguage();
+  const { burnoutLevel } = useBurnout();
+  const palette = getColorPalette(burnoutLevel);
 
   const translations = {
     it: {
@@ -87,39 +94,69 @@ const Login = () => {
   };
 
   return (
-    <RegisterLoginWrapper>
-      <form onSubmit={handleLogin} className="flex flex-col gap-3">
-        <h2 className="text-2xl font-bold text-white text-center mb-2">{t.title}</h2>
-
-        <AuthInput
-          type="email"
-          name="email"
-          placeholder={t.email}
-          value={form.email}
-          onChange={handleChange}
+    <div
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{
+        background: `linear-gradient(to bottom, ${palette.main}, ${palette.light})`,
+      }}
+    >
+      {/* Navbar */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50">
+        <NavbarMindt
+          activeId="signin"
+          highlightColors={{ color: palette.main, hover: palette.light }}
         />
-        <AuthInput
-          type="password"
-          name="password"
-          placeholder={t.password}
-          value={form.password}
-          onChange={handleChange}
-        />
+      </div>
 
-        <AuthButton text={t.login} className="bg-[#f17b4e] hover:bg-[#e56733]" />
+      {/* Mental Battery */}
+      <div className="absolute top-4 right-4 scale-[0.7] sm:scale-90 z-50">
+        <MentalBattery burnoutLevel={burnoutLevel} />
+      </div>
 
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-3 border border-white/30 bg-white/10 text-white py-3 rounded-xl hover:bg-white/20 transition"
-        >
-          <FcGoogle size={20} />
-          <span className="text-sm font-medium">{t.google}</span>
-        </button>
+      {/* Login Form */}
+      <RegisterLoginWrapper>
+        <form onSubmit={handleLogin} className="flex flex-col gap-3">
+          <h2 className="text-2xl font-bold text-white text-center mb-2">
+            {t.title}
+          </h2>
 
-        <ToggleAuthMode text={t.noAccount} linkText={t.register} to="/mindt-register" />
-      </form>
-    </RegisterLoginWrapper>
+          <AuthInput
+            type="email"
+            name="email"
+            placeholder={t.email}
+            value={form.email}
+            onChange={handleChange}
+          />
+          <AuthInput
+            type="password"
+            name="password"
+            placeholder={t.password}
+            value={form.password}
+            onChange={handleChange}
+          />
+
+          <AuthButton
+            text={t.login}
+            className="bg-[#f17b4e] hover:bg-[#e56733]"
+          />
+
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-3 border border-white/30 bg-white/10 text-white py-3 rounded-xl hover:bg-white/20 transition"
+          >
+            <FcGoogle size={20} />
+            <span className="text-sm font-medium">{t.google}</span>
+          </button>
+
+          <ToggleAuthMode
+            text={t.noAccount}
+            linkText={t.register}
+            to="/mindt-register"
+          />
+        </form>
+      </RegisterLoginWrapper>
+    </div>
   );
 };
 

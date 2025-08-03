@@ -1,6 +1,8 @@
+// src/components/Mindt/pages/MentalBattery.jsx
 import React from "react";
 import { useLanguage } from "../../../context/LanguageContext";
 import clsx from "clsx";
+import { getColorPalette } from "../../../utils/burnoutColors";
 
 const getBatteryLevel = (burnoutLevel) => {
   switch (burnoutLevel) {
@@ -39,6 +41,7 @@ const MentalBattery = ({ burnoutLevel, onClick }) => {
   const { language } = useLanguage();
   const level = getBatteryLevel(burnoutLevel);
   const label = getLabel(burnoutLevel, language);
+  const palette = getColorPalette(burnoutLevel);
 
   return (
     <button
@@ -62,25 +65,21 @@ const MentalBattery = ({ burnoutLevel, onClick }) => {
                 className={clsx(
                   "w-[20px] h-[40px] rounded-sm transition-all duration-500",
                   {
-                    // Green (Low)
-                    "bg-green-500": isActive && burnoutLevel === "low",
-                    "animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.8)]":
-                      isLastPulse && burnoutLevel === "low",
-
-                    // Yellow (Moderate)
-                    "bg-yellow-400": isActive && burnoutLevel === "moderate",
-                    "animate-pulse shadow-[0_0_12px_rgba(251,191,36,0.8)]":
-                      isLastPulse && burnoutLevel === "moderate",
-
-                    // Red (High)
-                    "bg-red-500": isActive && burnoutLevel === "high",
-                    "animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.8)]":
-                      isLastPulse && burnoutLevel === "high",
-
-                    // Inactive
                     "bg-gray-200": !isActive,
+                    [`bg-[${palette.main}]`]: isActive,
+                    "animate-pulse": isLastPulse,
                   }
                 )}
+                style={
+                  isLastPulse
+                    ? {
+                        backgroundColor: palette.main,
+                        boxShadow: `0 0 12px ${palette.glow}`,
+                      }
+                    : isActive
+                    ? { backgroundColor: palette.main }
+                    : undefined
+                }
               />
             );
           })}

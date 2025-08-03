@@ -1,9 +1,12 @@
+// src/components/Mindt/MindtPage.jsx
 import React, { useState } from "react";
 import BurnoutFlow from "./flow/BurnoutFlow";
 import LanguageSwitcher from "../LanguageSwitcher";
 import IntroText from "./IntroText";
 import InsightBox from "./flow/InsightBox";
 import { useLanguage } from "../../context/LanguageContext";
+import NavbarMindt from "./NavbarMindt";
+import { CTA_COLORS } from "./StartButton"; // importa i temi cromatici
 
 const MindtPage = () => {
   const [started, setStarted] = useState(false);
@@ -11,6 +14,13 @@ const MindtPage = () => {
   const [currentInsight, setCurrentInsight] = useState(null);
   const [insightLoading, setInsightLoading] = useState(false);
   const { language } = useLanguage();
+
+  // Seleziona un tema cromatico casuale al primo render
+  const [highlightColors] = useState(() => {
+    const index = Math.floor(Math.random() * CTA_COLORS.length);
+    const { color, hover } = CTA_COLORS[index];
+    return { color, hover };
+  });
 
   const handleStart = () => {
     setLoading(true);
@@ -22,6 +32,11 @@ const MindtPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#224344] text-white relative">
+      {/* Navbar posizionata in alto, centrata orizzontalmente, con colori dinamici */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+        <NavbarMindt highlightColors={highlightColors} />
+      </div>
+
       {/* LOGO ALTO SINISTRA */}
       <div className="absolute top-4 left-4 z-10">
         <img src="/logo3.png" alt="Mindt Logo" className="h-8 md:h-10" />
@@ -53,7 +68,7 @@ const MindtPage = () => {
               setInsightLoading(loading);
               setCurrentInsight(insight);
             }}
-            onNextQuestion={() => setCurrentInsight(null)} // ✅ INSERITO QUI
+            onNextQuestion={() => setCurrentInsight(null)}
           />
         )}
       </div>
@@ -61,7 +76,6 @@ const MindtPage = () => {
       {/* COLONNA DESTRA SOLO DESKTOP */}
       <div className="hidden md:flex md:w-1/2 justify-center items-center bg-[#224344] p-4 relative transition-all duration-700 ease-in-out">
         <div className="relative w-full max-w-[460px] pb-10">
-          {/* InsightBox come balloon */}
           {started && (
             <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 w-[340px] animate-fade-in-up drop-shadow-md">
               {insightLoading ? (
@@ -78,7 +92,6 @@ const MindtPage = () => {
             </div>
           )}
 
-          {/* IMMAGINE */}
           <img
             src="/rightside3.png"
             alt="Wellness Illustration"
