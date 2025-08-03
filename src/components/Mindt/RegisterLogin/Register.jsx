@@ -99,13 +99,13 @@ const Register = () => {
         language,
       });
 
-      navigate("/mindt-dashboard");
+      navigate(`/mindt-profilo/${user.uid}`);
     }
   };
 
   const handleGoogleRegister = async () => {
     const success = await loginWithGoogleAccount();
-    if (success) navigate("/mindt-dashboard");
+    if (success) navigate(`/mindt-profilo/${user.uid}`);
   };
 
   return (

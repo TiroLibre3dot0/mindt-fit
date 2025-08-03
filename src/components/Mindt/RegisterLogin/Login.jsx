@@ -75,7 +75,7 @@ const Login = () => {
       const auth = getAuth();
       const user = auth.currentUser;
       await updateLastLogin(user.uid);
-      navigate("/mindt-dashboard");
+      navigate(`/mindt-profilo/${user.uid}`);
     } else {
       toast.error(t.error);
     }
@@ -87,7 +87,7 @@ const Login = () => {
       const auth = getAuth();
       const user = auth.currentUser;
       await updateLastLogin(user.uid);
-      navigate("/mindt-dashboard");
+      navigate(`/mindt-profilo/${user.uid}`);
     } else {
       toast.error(t.error);
     }
