@@ -1,11 +1,24 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <link rel="icon" type="image/x-icon" href="/favicon (1).ico" />
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mindt-fit</title>
-  </head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mindt-fit</title>
+
+  <!-- Favicon (fallback) -->
+  <link rel="icon" type="image/x-icon" href="/favicon (1).ico" />
+
+  <!-- ✅ Manifest PWA -->
+  <link rel="manifest" href="/manifest.webmanifest" />
+
+  <!-- ✅ Icone PWA -->
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+
+  <!-- ✅ Tema colore per Chrome, Safari -->
+  <meta name="theme-color" content="#224344" />
+</head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

@@ -50,7 +50,7 @@ const MindtHome = () => {
   const items = [
     { id: "home", label: "Mindt", href: "/" },
     { id: "shop", label: "Shop", href: "/shop" },
-    { id: "signin", label: "Sign in", href: "/register" },
+    { id: "signin", label: "Sign in", href: "/mindt-register" },
   ];
   const [internalActive, setInternalActive] = useState("home");
   const navRef = useRef(null);
