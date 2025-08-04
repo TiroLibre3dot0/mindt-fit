@@ -48,7 +48,7 @@ const App = () => {
 
               {/* 🔒 Pagine protette */}
               <Route
-                path="/mindt-profilo/:uid"
+                path="/mindt-profilo/:slug"
                 element={
                   <PrivateRoute>
                     <UserProfile />

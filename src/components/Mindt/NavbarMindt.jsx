@@ -1,46 +1,76 @@
 // src/components/Mindt/NavbarMindt.jsx
 
 import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getColorPalette } from "../../utils/burnoutColors";
+import { useAuthContext } from "../../context/AuthContext";
+import { useBurnout } from "../../context/BurnoutContext";
 import { CTA_COLORS } from "./StartButton";
 import { useLanguage } from "../../context/LanguageContext";
 import Flag from "react-world-flags";
 
-export default function NavbarMindt({
-  items = [
+export default function NavbarMindt({ highlightColors }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuthContext();
+  const { burnoutLevel } = useBurnout();
+  const { language, setLanguage } = useLanguage();
+
+  const isDashboard = location.pathname === "/mindt-dashboard";
+  if (isDashboard) return null;
+
+  // 🌍 Lingue disponibili
+  const availableLangs = ["it", "en", "es"];
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+
+  // 🎨 Colori dinamici
+  const [colors, setColors] = useState({ color: "", hover: "" });
+  useEffect(() => {
+    if (highlightColors) {
+      setColors(highlightColors);
+    } else if (burnoutLevel) {
+      setColors(getColorPalette(burnoutLevel));
+    } else {
+      const idx = Math.floor(Math.random() * CTA_COLORS.length);
+      setColors({ color: CTA_COLORS[idx].color, hover: CTA_COLORS[idx].hover });
+    }
+  }, [highlightColors, burnoutLevel]);
+
+  // 🔗 Link dinamici
+  const slug = user?.displayName?.toLowerCase().replace(/\s+/g, "-");
+  const items = [
     { id: "Mindt", label: "Mindt", href: "/" },
     { id: "shop", label: "Shop", href: "/shop" },
-    { id: "signin", label: "Sign in", href: "/mindt-register" },
-  ],
-  activeId,
-  onNavigate,
-  highlightColors, // ✅ aggiunto
-}) {
+    ...(user
+      ? [
+          { id: "profile", label: "Profilo", href: `/mindt-profilo/${slug}` },
+          { id: "logout", label: "Logout", href: "#" },
+        ]
+      : [{ id: "signin", label: "Sign in", href: "/mindt-register" }]),
+  ];
 
-  const [internalActive, setInternalActive] = useState(items[0]?.id || "");
-  const active = activeId ?? internalActive;
+  // 📍 Determinazione dinamica voce attiva
+  const getActiveId = () => {
+    const path = location.pathname;
+    if (path === "/" || path.startsWith("/home")) return "Mindt";
+    if (path.startsWith("/shop")) return "shop";
+    if (path.startsWith("/mindt-profilo") || path.startsWith("/userprofile")) return "profile";
+    if (path.startsWith("/mindt-register") || path.startsWith("/mindt-login")) return "signin";
+    return "";
+  };
+
+  const activeId = getActiveId();
   const navRef = useRef(null);
   const indicatorRef = useRef(null);
   const itemRefs = useRef([]);
 
-  const { language, setLanguage } = useLanguage();
-  const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const availableLangs = ["it", "en", "es"];
-
-  const [colors, setColors] = useState({ color: "", hover: "" });
-  useEffect(() => {
-  if (highlightColors) {
-    setColors(highlightColors);
-  } else {
-    const idx = Math.floor(Math.random() * CTA_COLORS.length);
-    setColors({ color: CTA_COLORS[idx].color, hover: CTA_COLORS[idx].hover });
-  }
-}, [highlightColors]);
-
+  // 🟨 Aggiornamento animazione indicatore
   useEffect(() => {
     const update = () => {
-      const index = items.findIndex((item) => item.id === active);
+      const index = items.findIndex((item) => item.id === activeId);
       const el = itemRefs.current[index];
       if (!el || !navRef.current || !indicatorRef.current) return;
+
       const navRect = navRef.current.getBoundingClientRect();
       const itemRect = el.getBoundingClientRect();
       const offsetLeft = itemRect.left - navRect.left;
@@ -51,17 +81,20 @@ export default function NavbarMindt({
       indicatorRef.current.style.transform = `translateX(${offsetLeft}px)`;
       indicatorRef.current.style.top = `${offsetTop}px`;
     };
+
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, [active, items]);
+  }, [activeId, items]);
 
   const handleClick = (e, item) => {
-    if (onNavigate) {
-      e.preventDefault();
-      onNavigate(item);
+    e.preventDefault();
+
+    if (item.id === "logout") {
+      logout().then(() => navigate("/"));
+    } else {
+      navigate(item.href);
     }
-    setInternalActive(item.id);
   };
 
   return (
@@ -69,7 +102,7 @@ export default function NavbarMindt({
       ref={navRef}
       className="relative flex flex-wrap items-center justify-center gap-3 px-4 py-2 bg-[#173f47] text-gray-300 rounded-2xl shadow-md"
     >
-      {/* INDICATORE ANIMATO */}
+      {/* 🔸 Indicatore attivo */}
       <span
         ref={indicatorRef}
         className="absolute left-0 rounded-lg transition-all duration-300 pointer-events-none"
@@ -83,7 +116,7 @@ export default function NavbarMindt({
         }}
       />
 
-      {/* VOCI DI MENU */}
+      {/* 🔗 Voci di menu */}
       {items.map((item, idx) => (
         <a
           key={item.id}
@@ -91,16 +124,14 @@ export default function NavbarMindt({
           ref={(el) => (itemRefs.current[idx] = el)}
           onClick={(e) => handleClick(e, item)}
           className={`relative z-10 px-4 py-2 font-medium transition-colors duration-300 ${
-            active === item.id
-              ? "text-white"
-              : "text-gray-400 hover:text-gray-100"
+            activeId === item.id ? "text-white" : "text-gray-400 hover:text-gray-100"
           }`}
         >
           {item.label}
         </a>
       ))}
 
-      {/* SELETTORE LINGUA A DESTRA */}
+      {/* 🌍 Selettore lingua */}
       <div className="relative z-10 ml-2">
         <button
           onClick={() => setLangMenuOpen((prev) => !prev)}
