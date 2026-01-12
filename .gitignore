@@ -17,3 +17,9 @@ build/
 # VS Code settings locali
 .vscode/
 .vercel
+# === Secrets (never commit) ===
+.env
+.env.*
+.env.local
+.env.*.local
+!.env.example
